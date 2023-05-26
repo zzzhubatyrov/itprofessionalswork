@@ -1,0 +1,5 @@
+const Vacansies = () => {
+
+}
+
+export { Vacansies }
