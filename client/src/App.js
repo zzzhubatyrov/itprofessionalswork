@@ -9,6 +9,7 @@ import { Vacansies } from './pages/Vacansies';
 
 import { Layout } from './components/Layout';
 import { Auth } from './pages/Auth';
+import { Profile } from './pages/Profile';
 
 function App() {
   return (
@@ -23,6 +24,8 @@ function App() {
                         <Route path='about' element={<Aboutpage />}/>
                         <Route path='auth' element={<Auth />}/>
                         <Route path='*' element={<Notfoundpage />}/>
+
+                        <Route path='profile' element={<Profile />}/>
                     </Route>
                 </Routes>
             </div>        

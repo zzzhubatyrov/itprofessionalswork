@@ -1,0 +1,39 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    width: 100%;
+    min-height: 80vh;
+    color: #fff;
+}
+
+.userInfo {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 2vh 2vw;
+    max-width: 80vw;
+    max-height: 100vh;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 10px;
+    gap: 20px;
+    font-size: 20px;
+}
+
+.userLogo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #000;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: #fff;
+}
+
+.profileInfo {
+    display: flex;
+    width: 100%;
+    height: 50vh;
+}

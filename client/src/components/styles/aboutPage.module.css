@@ -1,0 +1,62 @@
+h3 {
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    /* align-items: start; */
+    justify-self: start;
+    width: 100%;
+    min-height: 80vh;
+    color: #fff;
+}
+
+.developers {
+    min-width: 30vw;
+    max-height: 30vh;
+    background: rgba(255, 255, 255, 0.45);
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    font-size: 20px;
+}
+
+.devBlock {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 2vh 2vw;
+}
+
+.name, .socialLink {
+    font-size: 25px;
+}
+
+hr {
+    width: 100%;
+    border: 1px solid #fff;
+}
+
+.social {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+}
+
+.linkBlock {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.socialLink {
+    color: blueviolet;
+}
+.socialLink:hover {
+    text-decoration: underline;
+}

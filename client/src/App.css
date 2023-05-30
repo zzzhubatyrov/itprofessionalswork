@@ -18,6 +18,20 @@ button {
   cursor: pointer;
 }
 
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 80vh;
+
+  gap: 20px;
+
+  color: #fff;
+}
+
 .wrapper {
   display: flex;
   flex-direction: column;
@@ -49,20 +63,6 @@ button {
   font-size: 18px;
 }
 
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  width: 100%;
-  min-height: 80vh;
-
-  gap: 20px;
-
-  color: #fff;
-}
-
 .centName {
   font-size: 24px;
 }
@@ -74,7 +74,7 @@ button {
 .btn {
   font-family: 'Raleway', sans-serif;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 18px;
   padding: 16px 84px;
   color:#fff;
 

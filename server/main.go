@@ -11,6 +11,8 @@ import (
 func main() {
 	app := fiber.New()
 	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "http://localhost:3000",
+		AllowHeaders:     "Origin, Content-Type, Accept",
 		AllowCredentials: true, // Very important while using a HTTPonly Cookie, frontend can easily get and return back the cookie.
 	}))
 
