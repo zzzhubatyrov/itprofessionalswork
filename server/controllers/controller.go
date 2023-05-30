@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -64,9 +64,9 @@ func Login(c *fiber.Ctx) error {
 		})
 	} // If the email is present in the DB then compare the Passwords and if incorrect password then return error.
 
-	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		Issuer:    strconv.Itoa(int(user.ID)),            // issuer contains the ID of the user.
-		ExpiresAt: time.Now().Add(time.Hour * 24).Unix(), // Adds time to the token i.e. 24 hours.
+	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
+		Issuer:    strconv.Itoa(int(user.ID)),                         // issuer contains the ID of the user.
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // Adds time to the token i.e. 24 hours.
 	})
 
 	token, err := claims.SignedString([]byte(SecretKey))
@@ -107,7 +107,7 @@ func User(c *fiber.Ctx) error {
 			"message": "unauthenticated",
 		})
 	}
-	claims := token.Claims.(*jwt.StandardClaims)
+	claims := token.Claims.(*jwt.RegisteredClaims)
 
 	var user usermodel.User
 	db.Where("id = ?", claims.Issuer).First(&user)
