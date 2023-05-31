@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"fmt"
+	"github.com/spf13/viper"
 	"ipw-app/config"
-	usermodel "ipw-app/models/user-model"
+	"ipw-app/models/user-model"
 	"log"
 	"strconv"
 	"time"
@@ -11,6 +13,18 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 )
+
+func init() {
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".\\config")
+	// Чтение файла конфигурации
+	if err := viper.ReadInConfig(); err != nil {
+		panic(fmt.Errorf("ошибка чтения файла конфигурации: %s", err))
+	}
+}
+
+var SecretKey = viper.GetString("SecretKey")
 
 func Register(c *fiber.Ctx) error {
 	db, dbErr := config.Connection()
@@ -37,9 +51,8 @@ func Register(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-const SecretKey = "02639fa6273c7e789b3ed709a9210dc05f4188037bbdf3ebc87b10199d405061"
-
 func Login(c *fiber.Ctx) error {
+
 	db, _ := config.Connection()
 
 	var data usermodel.User
@@ -97,7 +110,7 @@ func User(c *fiber.Ctx) error {
 	db, _ := config.Connection()
 	cookie := c.Cookies("jwt")
 
-	token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(cookie, jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(SecretKey), nil // using the SecretKey which was generated in th Login function
 	})
 
