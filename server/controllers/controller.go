@@ -2,12 +2,13 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"ipw-app/config"
-	"ipw-app/models/user-model"
+	usermodel "ipw-app/models/user-model"
 	"log"
 	"strconv"
 	"time"
+
+	"github.com/spf13/viper"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
@@ -35,9 +36,7 @@ func Register(c *fiber.Ctx) error {
 	if dataErr := c.BodyParser(&data); dataErr != nil {
 		return dataErr
 	}
-
 	password, _ := bcrypt.GenerateFromPassword([]byte(data.Password), 15)
-
 	user := usermodel.User{
 		Surname:  data.Surname,
 		Name:     data.Name,
@@ -45,9 +44,7 @@ func Register(c *fiber.Ctx) error {
 		Email:    data.Email,
 		Password: password,
 	}
-
 	db.Create(&user)
-
 	return c.JSON(user)
 }
 

@@ -9,8 +9,8 @@ const Profile = () => {
   
   const Logout = async () => {
     try {
-      await axios.post('http://localhost:5000/logout');
-      sessionStorage.removeItem('ipwSession');
+      await axios.post('http://localhost:5000/logout')
+      sessionStorage.removeItem('ipwSession')
       Cookies.remove('ipwSession')
       navigate('/auth')
     } catch (error) {
