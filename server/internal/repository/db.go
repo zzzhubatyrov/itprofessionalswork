@@ -1,4 +1,4 @@
-package config
+package repository
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ type GormConnect struct {
 func init() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".\\config")
+	viper.AddConfigPath("internal/config")
 	if err := viper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("ошибка чтения файла конфигурации: %s", err))
 	}
