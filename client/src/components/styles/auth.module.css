@@ -1,6 +1,103 @@
+.container {
+    width: 100%;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.80);
+    color: #000;
+}
+
+.btn {
+    border: none;
+    outline: none;
+    background: none;
+    font-family: Inter, sans-serif;
+}
+
 .SignUpForm, .SignInForm {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    align-items: center;
+}
+
+.header_form {
+    display: flex;
+    color: #000;
+    text-align: center;
+    font-size: 20px;
+    align-items: center;
+    font-family: Inter, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.header_link {
+    font-size: 24px;
+    /*color: #000;*/
+    /*cursor: default;*/
+    /*pointer-events: none;*/
+}
+
+input {
+    display: flex;
+    width: 320px;
+    padding: 15px 10px;
+    align-items: center;
+    border-radius: 15px;
+    border: .8px solid rgba(0, 0, 0, 0.60);
+    background: rgba(230, 230, 227, 0.40);
+}
+
+input::placeholder {
+    color: rgba(0, 0, 0, 0.50);
+    font-size: 12px;
+    font-family: Inter, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.SignUpForm > input:nth-child(3) {
+    display: flex;
+    width: 250px;
+    padding: 14px 0;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    background: #4E92F8;
+    border: none;
+    color: #FFF;
+    text-align: center;
+    font-size: 14px;
+    font-family: Inter, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    cursor: pointer;
+}
+
+input:nth-child(5) {
+    display: flex;
+    width: 250px;
+    padding: 14px 0;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    background: #4E92F8;
+    border: none;
+    color: #FFF;
+    text-align: center;
+    font-size: 14px;
+    font-family: Inter, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    cursor: pointer;
 }
 

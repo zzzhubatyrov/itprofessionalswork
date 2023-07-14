@@ -1,0 +1,5 @@
+const Resumes = () => {
+
+}
+
+export { Resumes }

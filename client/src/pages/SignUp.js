@@ -7,11 +7,11 @@ import formSignUp from '../components/styles/auth.module.css';
 
 const SignUpPage = () => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');  
-  
-  const isAuthenticated = !!Cookies.get('ipwSession');
+  const [password, setPassword] = useState('');
+
+  const isAuthenticated = !!Cookies.get('ipw_cookie');
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/profile')
@@ -25,14 +25,14 @@ const SignUpPage = () => {
         email: email,
         password: password,
       });
-      const token = response.data.data.value;
-      Cookies.set('ipwSession', token, { expires: 1 });
-      sessionStorage.setItem('ipwSession', token);
+      const token = response.data.cookieValue;
+      Cookies.set('ipw_cookie', token, { expires: 1 });
+      sessionStorage.setItem('ipw_cookie', token);
       navigate('/profile')
     } catch (error) {
       console.log(error);
     }
-    
+
     console.log({ email, password });
   };
 
@@ -51,7 +51,7 @@ const SignUpPage = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button type="submit">Авторизация</button>
+        <input type="submit" value="Авторизация" />
       </form>
     </>
   );

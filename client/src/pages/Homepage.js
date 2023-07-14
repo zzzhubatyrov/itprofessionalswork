@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const Homepage = () => {
 
-    const isAuthenticated = !!Cookies.get('ipwSession');
+    const isAuthenticated = !!Cookies.get('ipw_cookie');
     if (isAuthenticated) {
         return (
             <>
