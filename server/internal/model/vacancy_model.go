@@ -2,11 +2,12 @@ package model
 
 type Vacancy struct {
 	ID          int    `json:"id" gorm:"primaryKey"`
-	CompanyName string `json:"companyName" gorm:"type:varchar(255);not null;column:companyName"`
-	CompanyTag  string
-	VacancyName string
-	Location    string
-	WorkTime    string
-	Description string
-	Skills      string
+	CompanyID   int    `json:"company_id"`
+	CompanyName string `json:"company_name"`
+	CompanyTag  string `json:"company_tag" gorm:"unique;"`
+	Name        string `json:"name"`
+	Location    string `json:"location"`
+	WorkTime    string `json:"work_time"`
+	Description string `json:"description"`
+	Skills      string `json:"skills"`
 }

@@ -4,10 +4,12 @@ import styles from '../components/styles/profilePage.module.css';
 import UseChecker from "../components/AuthChecker";
 import {useEffect, useState} from "react";
 import Cookies from 'js-cookie';
+import ModalWindow from "../components/ModalWindows";
 
 const Profile = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
+  // const [userDataRole, setUserDataRole] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,7 +23,9 @@ const Profile = () => {
             },
           });
           console.log(response.data)
+          console.log(response.data.role)
           setUserData(response.data);
+          // setUserDataRole(response.data.role)
         }
       } catch (error) {
         console.error(error);
@@ -42,6 +46,16 @@ const Profile = () => {
     }
   };
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
 
   return (
       <div className={styles.container}>
@@ -58,6 +72,7 @@ const Profile = () => {
                       <div className={styles.user_nameAgeCity}>
                         <div className={styles.user_nameTag}>
                           <div className={styles.user_name}>{userData.name}</div>
+                          <div className={styles.user_role}>{userData.role.name}</div>
                           <div className={styles.user_tag}>{userData.tag}</div>
                         </div>
                         <div className={styles.user_ageCity}>
@@ -72,7 +87,9 @@ const Profile = () => {
                       </div>
                     </div>
                     <button className={`${styles.cv_btn} ${styles.non_active}`}>Скачать CV</button>
-                    <button className={`${styles.for_hr} ${styles.non_active}`}>Работодателям</button>
+                    <button className={`${styles.for_hr}`} onClick={openModal}>Работодателям</button>
+                    <ModalWindow isOpen={isModalOpen} onClose={closeModal} />
+                    {/*${styles.non_active}*/}
                   </div>
                   <div className={styles.brnd}>
                     <span><button onClick={logout}>Выйти</button></span>

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	//_ "ipw-app/internal/migration"
 	"ipw-app/internal/route"
 )
 

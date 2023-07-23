@@ -7,62 +7,26 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+	"ipw-app/internal/services"
 	"strconv"
 	"time"
 )
 
 type User struct {
-	ID          int        `json:"id" gorm:"primaryKey"`
-	Email       string     `json:"email" gorm:"type:varchar(255);unique;not null;column:email"`
-	Password    []byte     `json:"-" gorm:"type:varchar(255);not null;column:password"`
-	Name        string     `json:"name" gorm:"type:varchar(255);column:name"`
-	Age         string     `json:"age" gorm:"type:varchar(255);column:age"`
-	Tag         string     `json:"tag" gorm:"type:varchar(255);unique;column:tag"`
-	Direction   string     `json:"direction" gorm:"type:varchar(255);column:direction"`
-	Status      string     `json:"status" gorm:"type:varchar(255);column:status"`
-	Level       string     `json:"level" gorm:"type:varchar(255);column:level"`
-	Salary      string     `json:"salary" gorm:"type:varchar(255);column:salary"`
-	Skills      string     `json:"skills" gorm:"type:varchar(255);column:skills"`
-	Description string     `json:"description" gorm:"type:varchar(255);column:description"`
-	Number      string     `json:"number" gorm:"type:varchar(255);column:number"` //unique;
-	Gender      string     `json:"gender" gorm:"type:varchar(255);column:gender"`
-	Birthday    *time.Time `json:"birthday" gorm:"type:varchar(255);column:birthday"`
-	Location    string     `json:"location" gorm:"type:varchar(255);column:location"`
-	Role        []Role     `json:"role" gorm:"not null;column:role;gorm:foreignKey:Name"`
-	Photo       []byte     `json:"photo" gorm:"gorm:column:photo"`
-	Resume      []*Resume  `json:"resume" gorm:"many2many:resumes"`
+	ID       int    `json:"id" gorm:"primaryKey"`
+	Email    string `json:"email" gorm:"type:varchar(255);unique;not null"`
+	Password string `json:"password" gorm:"type:varchar(255);not null"`
+	Name     string `json:"name" gorm:"type:varchar(255)"`
+	Age      string `json:"age" gorm:"type:varchar(255)"`
+	Tag      string `json:"tag" gorm:"type:varchar(255);unique"`
+	RoleID   int    `json:"role_id"`
+	Role     Role   `json:"role" gorm:"foreignKey:RoleID"`
 }
 
-//var (
-//	connect repository.DBConnect = new(repository.GormConnect)
-//)
-//
-//func init() {
-//	db, err := connect.Connect()
-//	if err != nil {
-//		log.Println(err)
-//	}
-//
-//	migrator := db.Migrator()
-//	if !migrator.HasTable(User{}) {
-//		if err := db.AutoMigrate(&User{}); err != nil {
-//			log.Println(err)
-//		}
-//	} else {
-//		if err := migrator.DropTable(&User{}); err != nil {
-//			log.Println(err)
-//		}
-//		if err := db.AutoMigrate(&User{}); err != nil {
-//			log.Println(err)
-//		}
-//	}
-//}
-
-func (user *User) User(db *gorm.DB, secretKey string, c *fiber.Ctx) error {
+func (user User) GetUser(db *gorm.DB, secretKey string, c *fiber.Ctx) error {
+	userData := User{}
 	cookie := c.Cookies("ipw_cookie")
-	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secretKey), nil // using the SecretKey which was generated in th Login function
-	})
+	token, err := services.VerifyJWT(secretKey, cookie, c)
 	if err != nil {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
@@ -70,13 +34,16 @@ func (user *User) User(db *gorm.DB, secretKey string, c *fiber.Ctx) error {
 		})
 	}
 	claims := token.Claims.(*jwt.RegisteredClaims)
-	db.Where("id = ?", claims.Issuer).First(user)
-
-	return c.JSON(user)
+	if err := db.Preload("Role").Where("id = ?", claims.Issuer).First(&userData).Error; err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"message": fmt.Sprintf("failed to retrieve user data: %v", err),
+		})
+	}
+	return c.JSON(userData)
 }
 
-func (user *User) Register(data map[string]string, db *gorm.DB) (*User, error) {
-	// Проверка наличия уже зарегистрированного пользователя с указанным email
+func (user User) Register(data map[string]string, db *gorm.DB) (*User, error) {
 	var existingUser User
 	result := db.Where("email = ?", data["email"]).First(&existingUser)
 	if result.Error == nil {
@@ -84,41 +51,34 @@ func (user *User) Register(data map[string]string, db *gorm.DB) (*User, error) {
 	} else if result.Error != gorm.ErrRecordNotFound {
 		return nil, result.Error
 	}
-
-	var role Role
-	db.Where("name = ?", data["role"]).First(&role)
-	if db.Error != nil {
-		return nil, db.Error
-	}
-
 	password, err := bcrypt.GenerateFromPassword([]byte(data["password"]), 15)
 	if err != nil {
 		return nil, err
 	}
 	regUser := &User{
-		Name:     data["name"],
 		Email:    data["email"],
-		Password: password,
+		Password: string(password),
+		Name:     data["name"],
+		Age:      data["age"],
 		Tag:      data["tag"],
-		//Role:      &role,
-		Direction: data["direction"],
-		Level:     data["level"],
-		Salary:    data["salary"],
-		Status:    data["status"],
-		Skills:    data["skills"],
-		Age:       data["age"],
-		Location:  data["location"],
-		Resume: []*Resume{
-			{
-				Name: "OneRes",
-			},
-		},
+		RoleID:   4,
 	}
-	db.Create(regUser)
+	var role Role
+	roleResult := db.First(&role, regUser.RoleID)
+	if roleResult.Error != nil {
+		return nil, fmt.Errorf("failed to find role: %v", roleResult.Error)
+	}
+	role.UserCount++
+	if err := db.Save(&role).Error; err != nil {
+		return nil, err
+	}
+	if err := db.Create(regUser).Error; err != nil {
+		return nil, err
+	}
 	return regUser, nil
 }
 
-func (user *User) Login(data map[string]string, db *gorm.DB, secretKey string, c *fiber.Ctx) error {
+func (user User) Login(data map[string]string, db *gorm.DB, secretKey string, c *fiber.Ctx) error {
 	db.Where("email = ?", data["email"]).First(&user)
 	if user.ID == 0 {
 		c.Status(fiber.StatusNotFound)
@@ -126,7 +86,7 @@ func (user *User) Login(data map[string]string, db *gorm.DB, secretKey string, c
 			"message": "user not found",
 		})
 	}
-	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(data["password"])); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(data["password"])); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"message": "incorrect password",
@@ -160,7 +120,15 @@ func (user *User) Login(data map[string]string, db *gorm.DB, secretKey string, c
 	})
 }
 
-func (user *User) Logout(c *fiber.Ctx) error {
+func (user User) GetUserByID(id string, db *gorm.DB) (*User, error) {
+	var getUser User
+	if err := db.Preload("Role").Where("id = ?", id).First(&getUser).Error; err != nil {
+		return nil, err
+	}
+	return &getUser, nil
+}
+
+func (user User) Logout(c *fiber.Ctx) error {
 	cookie := fiber.Cookie{
 		Name:     "ipw_cookie",
 		Value:    "",
@@ -171,6 +139,12 @@ func (user *User) Logout(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"message": "success logout",
 	})
+}
+
+// #TODO WARNING Delete this method, only test case
+func (user User) ChangeRole(db *gorm.DB) (*Role, error) {
+	// #TODO implements me!
+	panic("implements me!")
 }
 
 type UploadHandler interface {
@@ -185,7 +159,7 @@ type UploadHandler interface {
 //
 // Метод для загрузки фото для пользователя
 // Обработчик для загрузки фото
-func (user *User) UserUploadPhoto(c *fiber.Ctx, db *gorm.DB) error {
+func (user User) UserUploadPhoto(c *fiber.Ctx, db *gorm.DB) error {
 	// Получите файл из запроса
 	file, err := c.FormFile("photo")
 	if err != nil {
