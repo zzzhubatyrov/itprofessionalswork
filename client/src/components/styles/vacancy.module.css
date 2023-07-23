@@ -1,0 +1,261 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 100%;
+    min-height: 80vh;
+    color: #000;
+}
+
+.elastic_search {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    align-self: stretch;
+}
+
+.search_bar .level_block {
+    padding: 10px 15px;
+    justify-content: space-between;
+}
+
+
+.search_bar {
+    display: flex;
+    width: 200px;
+    align-items: center;
+    border-radius: 10px;
+    background: #FFF;
+    color: rgba(0, 0, 0, 0.50);
+    font-size: 15px;
+    font-family: Inter, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    padding: 10px 15px;
+    line-height: normal;
+    border: none;
+}
+
+.list_levelBlock {
+    display: flex;
+    /*align-items: center;*/
+    gap: 88px;
+    align-self: stretch;
+}
+
+.level_block {
+    display: flex;
+    width: 190px;
+    padding: 10px 15px;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 10px;
+    background: #FFF;
+    color: rgba(0, 0, 0, 0.50);
+    font-size: 15px;
+    font-family: Inter, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+/*.vacancy_container {*/
+/*    display: flex;*/
+/*    align-items: flex-start;*/
+/*    gap: 3rem;*/
+/*    align-self: stretch;*/
+/*    margin: 35px 0;*/
+/*    flex-wrap: wrap;*/
+/*}*/
+
+/*.vacancy_block {*/
+/*    display: inline-flex;*/
+/*    width: 768px;*/
+/*    padding: 30px;*/
+/*    flex-direction: column;*/
+/*    justify-content: center;*/
+/*    align-items: flex-start;*/
+/*    gap: 15px;*/
+/*    border-radius: 20px;*/
+/*    background: #FFF;*/
+/*}*/
+
+.vacancy_container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 3rem;
+    margin: 35px 0;
+}
+
+.vacancy_block {
+    display: inline-flex;
+    width: calc(50% - 5.3rem); /* Чтобы занимало половину контейнера и учтено значение gap в 3rem */
+    padding: 30px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 15px;
+    border-radius: 20px;
+    background: #FFF;
+}
+
+.vacancy_block_header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    align-self: stretch;
+}
+
+.logo {
+    width: 90px;
+    height: 90px;
+    border-radius: 5px;
+    background: #D9D9D9;
+}
+
+.logo > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.block {
+    display: flex;
+    padding: 10px 0;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    align-self: stretch;
+}
+.block_name_tag {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    align-self: stretch;
+}
+.company_name {
+    font-size: 16px;
+    font-family: Inter, sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+}
+.tag {
+    color: rgba(0, 0, 0, 0.70);
+    font-size: 14px;
+    font-family: Inter, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+.emp_position {
+    font-size: 24px;
+    font-family: Inter, sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+}
+.city_workTime {
+    font-size: 12px;
+    font-family: Inter, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.vacancy_block_desc {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    font-size: 14px;
+    font-family: Inter, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.vacancy_block_footer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.vacancy_block_skills {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    align-self: stretch;
+    /*width: 515px;*/
+    color: #000;
+    font-size: 12px;
+    font-family: Inter, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.vacancy_block_btn {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-self: stretch;
+    font-size: 11px;
+    font-family: Inter, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+.subBtn {
+    display: flex;
+    padding: 10px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    background: #4E92F8;
+    color: #FFF;
+    text-align: center;
+    font-size: 13px;
+    font-family: Inter, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.successBtn {
+    display: flex;
+    padding: 10px;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    border-radius: 5px;
+    background: #198754;
+    color: #FFF;
+    text-align: center;
+    font-size: 13px;
+    font-family: Inter, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.writeBtn {
+    display: flex;
+    padding: 10px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    border: .7px solid #ADADAD;
+    color: #ADADAD;
+    text-align: center;
+    font-size: 13px;
+    font-family: Inter, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    background: none;
+}

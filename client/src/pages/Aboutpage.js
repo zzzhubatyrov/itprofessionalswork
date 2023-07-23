@@ -12,16 +12,16 @@ const Aboutpage = () => {
         <div className={aboutPage.container}>
             <div className={aboutPage.developers}>
                 <div className={aboutPage.devBlock}>
-                    <div className={aboutPage.name}>Родион Жубатыров</div>
-                    <hr />
+                    <div className={aboutPage.devPhoto}><img src={require('../components/img/zhubatyrov.jpg')} alt='devPhoto'/></div>
                     <div className={aboutPage.social}>
+                        <div className={aboutPage.name}>Родион Жубатыров</div>
                         <div className={`${aboutPage.linkBlock}`}>
                             <h3>VK </h3>
-                            <NavLink className={setActive} to='https://vk.com/zzzhubatyrov'>zzzhubatyrov</NavLink>
+                            <NavLink className={setActive} target="_blank" rel="noopener noreferrer" to='https://vk.com/zzzhubatyrov'>zzzhubatyrov</NavLink>
                         </div>
                         <div className={`${aboutPage.linkBlock}`}>
                             <h3>GitHub </h3>
-                            <NavLink className={setActive} to='https://github.com/zzzhubatyrov'>zzzhubatyrov</NavLink>
+                            <NavLink className={setActive} target="_blank" rel="noopener noreferrer" to='https://github.com/zzzhubatyrov'>zzzhubatyrov</NavLink>
                         </div>
                     </div>
                 </div>
