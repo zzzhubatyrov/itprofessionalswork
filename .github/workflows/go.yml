@@ -14,6 +14,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+
     - uses: actions/checkout@v3
 
     - name: Set up Go
@@ -22,10 +23,10 @@ jobs:
         go-version: '1.20'
 
     - name: Build
-      run: go build -v ./server/...
-      
+      run: cd server && go build -v ./...
+
     - name: Vet
-      run: go vet -v ./...
+      run: cd server && go vet -v ./...
 
     - name: Test
-      run: go test -v ./...
+      run: cd server && go test -v ./...
