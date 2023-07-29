@@ -9,7 +9,7 @@ import (
 // Authorization TODO add Update method, CheckEmail, CheckUser, VerifyEmail
 type Authorization interface {
 	Register(data model.User) (*model.User, error)
-	Login(data model.User, secretKey string, c *fiber.Ctx) (*model.User, error)
+	Login(data model.User, secretKey string, c *fiber.Ctx) error
 	Logout(c *fiber.Ctx) error
 }
 

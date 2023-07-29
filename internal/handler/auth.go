@@ -22,11 +22,7 @@ func (h *Handler) loginUser(c *fiber.Ctx) error {
 	if err := c.BodyParser(&input); err != nil {
 		return err
 	}
-	loginUser, err := h.services.Login(input, secretKey, c)
-	if err != nil {
-		return err
-	}
-	return c.JSON(loginUser)
+	return h.services.Login(input, secretKey, c)
 }
 
 func (h *Handler) logoutUser(c *fiber.Ctx) error {

@@ -45,7 +45,7 @@ func main() {
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     "http://localhost:3000",
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
-		AllowCredentials: true, // Very important while using an HTTP-only Cookie, frontend can easily get and return back the cookie.
+		AllowCredentials: true,
 	}))
 	handlers.InitRoute(app)
 	app.Listen(":5000")
