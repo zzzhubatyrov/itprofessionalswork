@@ -59,7 +59,7 @@ func (u *AuthServices) Login(data model.User, secretKey string, c *fiber.Ctx) (*
 		})
 	}
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
-		Issuer:    strconv.Itoa(data.ID),
+		Issuer:    strconv.Itoa(user.ID),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 	})
 	token, err := claims.SignedString([]byte(secretKey))

@@ -14,7 +14,7 @@ type Authorization interface {
 }
 
 type UserHandler interface {
-	GetUser(data model.User) (*model.User, error)
+	GetUser(data model.User, secretKey string, c *fiber.Ctx) (*model.User, error)
 	GetAllUsers(data []model.User) ([]model.User, error)
 }
 

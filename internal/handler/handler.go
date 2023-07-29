@@ -26,6 +26,7 @@ func (h *Handler) InitRoute(app *fiber.App) fiber.Handler {
 	data := app.Group("/data")
 	dataV1 := data.Group("/v1")
 	dataV1.Get("/user", h.getUserData)
+	dataV1.Get("/users", h.getAllUsers)
 
 	return nil
 }

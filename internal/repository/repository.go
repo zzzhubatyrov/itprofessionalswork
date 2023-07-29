@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/golang-jwt/jwt/v4"
 	"gorm.io/gorm"
 	"ipw-clean-arch/internal/model"
 )
@@ -13,7 +14,7 @@ type Authorization interface {
 
 // UserHandler TODO Add GetUserRole()
 type UserHandler interface {
-	GetUser(data model.User) (*model.User, error)
+	GetUser(data model.User, claims *jwt.RegisteredClaims) (*model.User, error)
 	GetAllUsers(data []model.User) ([]model.User, error)
 }
 
