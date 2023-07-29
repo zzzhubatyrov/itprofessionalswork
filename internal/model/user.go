@@ -7,6 +7,6 @@ type User struct {
 	Name     string `json:"name" gorm:"type:varchar(255)"`
 	Age      string `json:"age" gorm:"type:varchar(255)"`
 	Tag      string `json:"tag" gorm:"type:varchar(255);unique"`
-	//RoleID   int    `json:"role_id"`
-	//Role     Role   `json:"role" gorm:"foreignKey:RoleID"`
+	RoleID   int    `json:"role_id"`
+	Role     Role   `json:"role" gorm:"foreignKey:RoleID"`
 }

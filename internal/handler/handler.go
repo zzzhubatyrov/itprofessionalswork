@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/spf13/viper"
 	"ipw-clean-arch/internal/service"
 )
 
@@ -13,11 +14,18 @@ func NewHandler(services *service.Service) *Handler {
 	return &Handler{services: services}
 }
 
+var secretKey = viper.GetString("SecretKey")
+
 func (h *Handler) InitRoute(app *fiber.App) fiber.Handler {
 	auth := app.Group("/auth")
-	auth.Post("/create-user", h.createUser)
+	authV1 := auth.Group("/v1")
+	authV1.Post("/register", h.createUser)
+	authV1.Post("/login", h.loginUser)
+	authV1.Post("/logout", h.logoutUser)
 
 	data := app.Group("/data")
-	data.Get("/users", h.getAllUser)
+	dataV1 := data.Group("/v1")
+	dataV1.Get("/user", h.getUserData)
+
 	return nil
 }

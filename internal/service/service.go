@@ -1,22 +1,26 @@
 package service
 
 import (
-	"gorm.io/gorm"
+	"github.com/gofiber/fiber/v2"
 	"ipw-clean-arch/internal/model"
 	"ipw-clean-arch/internal/repository"
 )
 
+// Authorization TODO add Update method, CheckEmail, CheckUser, VerifyEmail
 type Authorization interface {
-	Register(data map[string]string, db *gorm.DB) (*model.User, error)
-	GenerateToken()
-	ParseToken()
-	//ChangeRole(db *gorm.DB) (*model.Role, error)
+	Register(data model.User) (*model.User, error)
+	Login(data model.User, secretKey string, c *fiber.Ctx) (*model.User, error)
+	Logout(c *fiber.Ctx) error
+}
+
+type UserHandler interface {
+	GetUser(data model.User) (*model.User, error)
+	GetAllUsers(data []model.User) ([]model.User, error)
 }
 
 // RoleHandler TODO Add GetUserRole()
 type RoleHandler interface {
-	CompanyHandler
-	//GetAllRoles(db *gorm.DB) ([]model.Role, error)
+	//GetAllRoles(data []model.Role) ([]model.Role, error)
 	//CreateVacancy(data model.Vacancy, db *gorm.DB) (*model.Vacancy, error)
 	//UpdateVacancy()
 	//DeleteVacancy()
@@ -30,6 +34,7 @@ type CompanyHandler interface {
 
 type Service struct {
 	Authorization
+	UserHandler
 	RoleHandler
 	CompanyHandler
 }
@@ -37,5 +42,6 @@ type Service struct {
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Authorization: NewAuthService(repos.Authorization),
+		UserHandler:   NewUserService(repos.UserHandler),
 	}
 }
