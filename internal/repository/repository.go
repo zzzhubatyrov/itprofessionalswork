@@ -18,8 +18,9 @@ type UserHandler interface {
 	GetAllUsers(data []model.User) ([]model.User, error)
 }
 
-// RoleHandler TODO Add GetUserRole()
+// RoleHandler TODO Add GetUserRole(), CheckUserRole()
 type RoleHandler interface {
+	GetAllRoles(data []model.Role) ([]model.Role, error)
 }
 
 type CompanyHandler interface {
@@ -39,5 +40,6 @@ func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{
 		Authorization: NewAuthPostgres(db),
 		UserHandler:   NewUserPostgres(db),
+		RoleHandler:   NewRolePostgres(db),
 	}
 }

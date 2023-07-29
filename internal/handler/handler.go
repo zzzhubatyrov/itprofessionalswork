@@ -28,5 +28,9 @@ func (h *Handler) InitRoute(app *fiber.App) fiber.Handler {
 	dataV1.Get("/user", h.getUserData)
 	dataV1.Get("/users", h.getAllUsers)
 
+	role := app.Group("/role")
+	roleV1 := role.Group("/v1")
+	roleV1.Get("/roles", h.getAllRoles)
+
 	return nil
 }

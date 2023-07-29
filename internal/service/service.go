@@ -20,7 +20,7 @@ type UserHandler interface {
 
 // RoleHandler TODO Add GetUserRole()
 type RoleHandler interface {
-	//GetAllRoles(data []model.Role) ([]model.Role, error)
+	GetAllRoles(data []model.Role) ([]model.Role, error)
 	//CreateVacancy(data model.Vacancy, db *gorm.DB) (*model.Vacancy, error)
 	//UpdateVacancy()
 	//DeleteVacancy()
@@ -43,5 +43,6 @@ func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Authorization: NewAuthService(repos.Authorization),
 		UserHandler:   NewUserService(repos.UserHandler),
+		RoleHandler:   NewRoleService(repos.RoleHandler),
 	}
 }
