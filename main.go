@@ -32,11 +32,15 @@ func main() {
 	models := []interface{}{
 		&model.User{},
 		&model.Role{},
-		// Добавьте здесь другие модели, если они есть
+		&model.Resume{},
 	}
 	//migrator := db.Migrator()
-	//_ = migrator.DropTable(&model.User{})
+	//_ = migrator.DropTable(models...)
 	db.AutoMigrate(models...)
+	//db.Create(&model.Role{Name: "Администратор"})
+	//db.Create(&model.Role{Name: "Модератор"})
+	//db.Create(&model.Role{Name: "HR"})
+	//db.Create(&model.Role{Name: "Пользователь"})
 
 	repos := repository.NewRepository(db)
 	services := service.NewService(repos)

@@ -14,8 +14,17 @@ type Authorization interface {
 
 // UserHandler TODO Add GetUserRole()
 type UserHandler interface {
+	ResumeHandler
 	GetUser(data model.User, claims *jwt.RegisteredClaims) (*model.User, error)
 	GetAllUsers(data []model.User) ([]model.User, error)
+}
+
+type ResumeHandler interface {
+	CreateResume(data *model.Resume) (*model.Resume, error)
+	UpdateResume(data *model.Resume, id string) (*model.Resume, error)
+	GetResume()
+	GetAllResumes(data []model.Resume) ([]model.Resume, error)
+	DeleteResume()
 }
 
 // RoleHandler TODO Add GetUserRole(), CheckUserRole()
@@ -24,9 +33,16 @@ type RoleHandler interface {
 }
 
 type CompanyHandler interface {
-	//CreateCompany()
-	//GetVacancy()
-	//GetVacancyByID()
+	CreateCompany()
+	GetVacancy()
+	GetVacancyByID()
+	GetAllVacancy()
+}
+
+type VacancyHandler interface {
+	CreateVacancy()
+	UpdateVacancy()
+	DeleteVacancy()
 }
 
 type Repository struct {
