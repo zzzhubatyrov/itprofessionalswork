@@ -1,45 +1,41 @@
 package repository
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"errors"
+	"fmt"
 	"gorm.io/gorm"
 	"ipw-clean-arch/internal/model"
 )
 
-type UserPostgres struct {
+type AuthPostgres struct {
 	db *gorm.DB
 }
 
-func NewAuthPostgres(db *gorm.DB) *UserPostgres {
-	return &UserPostgres{db: db}
+func NewAuthPostgres(db *gorm.DB) *AuthPostgres {
+	return &AuthPostgres{db: db}
 }
 
-func (u UserPostgres) GetUser(c *fiber.Ctx) error {
-	//TODO implement me
-	panic("implement me")
+func (u *AuthPostgres) Register(data *model.User) (*model.User, error) {
+	var existingUser model.User
+	result := u.db.Where("email = ?", data.Email).First(&existingUser)
+	if result.Error == nil {
+		return nil, fmt.Errorf("user already exists")
+	} else if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, result.Error
+	}
+	if err := u.db.Create(data).Error; err != nil {
+		return nil, err
+	}
+	return data, nil
 }
 
-func (u UserPostgres) GetUserByID(id string, db *gorm.DB) (*model.User, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (u UserPostgres) Register(data map[string]string, db *gorm.DB) (*model.User, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (u UserPostgres) Login(data map[string]string, db *gorm.DB, secretKey string, c *fiber.Ctx) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (u UserPostgres) Logout(c *fiber.Ctx) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (u UserPostgres) CreateUser(user model.User) (model.User, error) {
-	//TODO implement me
-	panic("implement me")
+func (u *AuthPostgres) Login(data model.User) (*model.User, error) {
+	var user model.User
+	if err := u.db.Preload("Role").Where("email = ?", data.Email).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("user not found")
+		}
+		return nil, err
+	}
+	return &user, nil
 }

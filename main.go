@@ -6,8 +6,10 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/spf13/viper"
 	"ipw-clean-arch/internal/handler"
+	"ipw-clean-arch/internal/model"
 	"ipw-clean-arch/internal/repository"
 	"ipw-clean-arch/internal/service"
+	_ "ipw-clean-arch/internal/service"
 )
 
 func main() {
@@ -27,15 +29,24 @@ func main() {
 		fmt.Errorf("failed to initialize db: %s", err.Error())
 	}
 
+	models := []interface{}{
+		&model.User{},
+		&model.Role{},
+		// Добавьте здесь другие модели, если они есть
+	}
 	//migrator := db.Migrator()
-	//migrator.DropTable(&model.User{})
-	//db.AutoMigrate(&model.User{})
+	//_ = migrator.DropTable(&model.User{})
+	db.AutoMigrate(models...)
 
 	repos := repository.NewRepository(db)
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
 	app := fiber.New()
-	app.Use(cors.New())
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "http://localhost:3000",
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+		AllowCredentials: true, // Very important while using an HTTP-only Cookie, frontend can easily get and return back the cookie.
+	}))
 	handlers.InitRoute(app)
 	app.Listen(":5000")
 }
