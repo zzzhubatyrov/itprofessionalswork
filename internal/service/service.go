@@ -14,22 +14,37 @@ type Authorization interface {
 }
 
 type UserHandler interface {
+	ResumeHandler
 	GetUser(data model.User, secretKey string, c *fiber.Ctx) (*model.User, error)
 	GetAllUsers(data []model.User) ([]model.User, error)
 }
 
+type ResumeHandler interface {
+	CreateResume(data model.Resume, secretKey string, c *fiber.Ctx) (*model.Resume, error)
+	UpdateResume(data model.Resume, id, secretKey string, c *fiber.Ctx) (*model.Resume, error)
+	GetResume()
+	GetAllResumes(data []model.Resume) ([]model.Resume, error)
+	DeleteResume()
+}
+
 // RoleHandler TODO Add GetUserRole()
 type RoleHandler interface {
-	//GetAllRoles(data []model.Role) ([]model.Role, error)
-	//CreateVacancy(data model.Vacancy, db *gorm.DB) (*model.Vacancy, error)
-	//UpdateVacancy()
-	//DeleteVacancy()
+	GetAllRoles(data []model.Role) ([]model.Role, error)
 }
 
 type CompanyHandler interface {
-	//CreateCompany(data model.Company, secretKey string, db *gorm.DB, c *fiber.Ctx) (*model.Company, error)
-	//GetVacancy(db *gorm.DB) (*model.Vacancy, error)
+	CreateCompany()
+	GetVacancy()
 	//GetVacancyByID()
+	//GetAllVacancy()
+}
+
+type VacancyHandler interface {
+	CreateVacancy(data model.Vacancy) (model.Vacancy, error)
+	GetAllVacancy(data []model.Vacancy) ([]model.Vacancy, error)
+	GetVacancyByID(id string) (*model.Vacancy, error)
+	UpdateVacancy()
+	DeleteVacancy()
 }
 
 type Service struct {
@@ -37,11 +52,14 @@ type Service struct {
 	UserHandler
 	RoleHandler
 	CompanyHandler
+	VacancyHandler
 }
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
-		Authorization: NewAuthService(repos.Authorization),
-		UserHandler:   NewUserService(repos.UserHandler),
+		Authorization:  NewAuthService(repos.Authorization),
+		UserHandler:    NewUserService(repos.UserHandler),
+		VacancyHandler: NewVacancyService(repos.VacancyHandler),
+		RoleHandler:    NewRoleService(repos.RoleHandler),
 	}
 }
