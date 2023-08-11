@@ -47,25 +47,25 @@ func (u *AuthServices) Register(data model.User) (*model.User, error) {
 	return regUser, nil
 }
 
-func (u *AuthServices) Login(data model.User, secretKey string, c *fiber.Ctx) (*model.User, error) {
+func (u *AuthServices) Login(data model.User, secretKey string, c *fiber.Ctx) error {
 	user, err := u.repo.Login(data)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(data.Password)); err != nil {
 		c.Status(fiber.StatusBadRequest)
-		return nil, c.JSON(fiber.Map{
+		return c.JSON(fiber.Map{
 			"message": "incorrect password",
 		})
 	}
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
-		Issuer:    strconv.Itoa(data.ID),
+		Issuer:    strconv.Itoa(user.ID),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 	})
 	token, err := claims.SignedString([]byte(secretKey))
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
-		return nil, c.JSON(fiber.Map{
+		return c.JSON(fiber.Map{
 			"message": "could not generate token",
 		})
 	}
@@ -79,7 +79,11 @@ func (u *AuthServices) Login(data model.User, secretKey string, c *fiber.Ctx) (*
 	if cookie.Value != "" {
 		c.Set("Authorization", "Bearer "+cookie.Value)
 	}
-	return user, nil
+	return c.JSON(fiber.Map{
+		"user":        user,
+		"cookie_name": cookie.Name,
+		"token":       cookie.Value,
+	})
 }
 
 func (u *AuthServices) Logout(c *fiber.Ctx) error {

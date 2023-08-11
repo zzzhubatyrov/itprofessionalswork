@@ -32,11 +32,15 @@ func main() {
 	models := []interface{}{
 		&model.User{},
 		&model.Role{},
-		// Добавьте здесь другие модели, если они есть
+		&model.Resume{},
 	}
 	//migrator := db.Migrator()
-	//_ = migrator.DropTable(&model.User{})
+	//_ = migrator.DropTable(models...)
 	db.AutoMigrate(models...)
+	//db.Create(&model.Role{Name: "Администратор"})
+	//db.Create(&model.Role{Name: "Модератор"})
+	//db.Create(&model.Role{Name: "HR"})
+	//db.Create(&model.Role{Name: "Пользователь"})
 
 	repos := repository.NewRepository(db)
 	services := service.NewService(repos)
@@ -45,7 +49,7 @@ func main() {
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     "http://localhost:3000",
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
-		AllowCredentials: true, // Very important while using an HTTP-only Cookie, frontend can easily get and return back the cookie.
+		AllowCredentials: true,
 	}))
 	handlers.InitRoute(app)
 	app.Listen(":5000")
