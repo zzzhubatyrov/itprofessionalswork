@@ -2,10 +2,10 @@ package model
 
 type Resume struct {
 	ID          int    `json:"id" gorm:"primaryKey"`
-	UserID      string `json:"user_id"`
-	UserEmail   string `json:"user_email"`
-	UserName    string `json:"user_name"`
-	UserTag     string `json:"user_tag"`
+	UserID      string `json:"userID"`
+	UserEmail   string `json:"userEmail"`
+	UserName    string `json:"userName"`
+	UserTag     string `json:"userTag"`
 	Direction   string `json:"direction"`
 	Level       string `json:"level"`
 	Salary      string `json:"salary"`

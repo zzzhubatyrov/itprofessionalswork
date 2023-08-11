@@ -35,12 +35,14 @@ type RoleHandler interface {
 type CompanyHandler interface {
 	CreateCompany()
 	GetVacancy()
-	GetVacancyByID()
-	GetAllVacancy()
+	//GetVacancyByID()
+	//GetAllVacancy()
 }
 
 type VacancyHandler interface {
-	CreateVacancy()
+	CreateVacancy(data model.Vacancy) (model.Vacancy, error)
+	GetAllVacancy(data []model.Vacancy) ([]model.Vacancy, error)
+	GetVacancyByID(id string) (*model.Vacancy, error)
 	UpdateVacancy()
 	DeleteVacancy()
 }
@@ -50,12 +52,14 @@ type Service struct {
 	UserHandler
 	RoleHandler
 	CompanyHandler
+	VacancyHandler
 }
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
-		Authorization: NewAuthService(repos.Authorization),
-		UserHandler:   NewUserService(repos.UserHandler),
-		RoleHandler:   NewRoleService(repos.RoleHandler),
+		Authorization:  NewAuthService(repos.Authorization),
+		UserHandler:    NewUserService(repos.UserHandler),
+		VacancyHandler: NewVacancyService(repos.VacancyHandler),
+		RoleHandler:    NewRoleService(repos.RoleHandler),
 	}
 }

@@ -35,12 +35,14 @@ type RoleHandler interface {
 type CompanyHandler interface {
 	CreateCompany()
 	GetVacancy()
-	GetVacancyByID()
-	GetAllVacancy()
+	//GetVacancyByID()
+	//GetAllVacancy()
 }
 
 type VacancyHandler interface {
-	CreateVacancy()
+	CreateVacancy(data model.Vacancy) (*model.Vacancy, error)
+	GetAllVacancy(data []model.Vacancy) ([]model.Vacancy, error)
+	GetVacancyByID(id string) (*model.Vacancy, error)
 	UpdateVacancy()
 	DeleteVacancy()
 }
@@ -50,12 +52,15 @@ type Repository struct {
 	UserHandler
 	RoleHandler
 	CompanyHandler
+	VacancyHandler
 }
 
 func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{
-		Authorization: NewAuthPostgres(db),
-		UserHandler:   NewUserPostgres(db),
-		RoleHandler:   NewRolePostgres(db),
+		Authorization:  NewAuthPostgres(db),
+		UserHandler:    NewUserPostgres(db),
+		VacancyHandler: NewVacancyPostgres(db),
+		CompanyHandler: NewCompanyPostgres(db),
+		RoleHandler:    NewRolePostgres(db),
 	}
 }
