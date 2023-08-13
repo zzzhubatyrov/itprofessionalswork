@@ -74,16 +74,15 @@ func (u *AuthServices) Login(data model.User, secretKey string, c *fiber.Ctx) er
 		Value:    token,
 		Expires:  time.Now().Add(time.Hour * 24),
 		HTTPOnly: true,
+		Secure:   false,
+		SameSite: "Lax",
+		Domain:   "localhost",
 	}
 	c.Cookie(&cookie)
 	if cookie.Value != "" {
 		c.Set("Authorization", "Bearer "+cookie.Value)
 	}
-	return c.JSON(fiber.Map{
-		"user":        user,
-		"cookie_name": cookie.Name,
-		"token":       cookie.Value,
-	})
+	return c.JSON(user)
 }
 
 func (u *AuthServices) Logout(c *fiber.Ctx) error {

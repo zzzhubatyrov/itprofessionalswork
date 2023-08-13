@@ -14,7 +14,7 @@ import (
 
 func main() {
 	if err := initConfig(); err != nil {
-		fmt.Errorf("error initializing configs: %s", err.Error())
+		_ = fmt.Errorf("error initializing configs: %s", err.Error())
 	}
 
 	db, err := repository.NewPostgresDB(repository.Config{
@@ -26,17 +26,17 @@ func main() {
 		SSLMode:  viper.GetString("db.sslmode"),
 	})
 	if err != nil {
-		fmt.Errorf("failed to initialize db: %s", err.Error())
+		_ = fmt.Errorf("failed to initialize db: %s", err.Error())
 	}
 
 	models := []interface{}{
 		&model.User{},
-		&model.Role{},
+		//&model.Role{},
 		&model.Resume{},
 	}
 	//migrator := db.Migrator()
 	//_ = migrator.DropTable(models...)
-	db.AutoMigrate(models...)
+	_ = db.AutoMigrate(models...)
 	//db.Create(&model.Role{Name: "Администратор"})
 	//db.Create(&model.Role{Name: "Модератор"})
 	//db.Create(&model.Role{Name: "HR"})
