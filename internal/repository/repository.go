@@ -33,7 +33,7 @@ type RoleHandler interface {
 }
 
 type CompanyHandler interface {
-	CreateCompany()
+	CreateCompany(data *model.Company) (*model.Company, error)
 	GetVacancy()
 	//GetVacancyByID()
 	//GetAllVacancy()

@@ -15,6 +15,7 @@ func NewVacancyPostgres(db *gorm.DB) *VacancyPostgres {
 
 func (v *VacancyPostgres) CreateVacancy(data model.Vacancy) (*model.Vacancy, error) {
 	vacancy := &model.Vacancy{
+		CompanyID:   data.CompanyID,
 		CompanyName: data.CompanyName,
 		CompanyTag:  data.CompanyTag,
 		Direction:   data.Direction,
@@ -38,8 +39,11 @@ func (v *VacancyPostgres) GetAllVacancy(data []model.Vacancy) ([]model.Vacancy, 
 }
 
 func (v *VacancyPostgres) GetVacancyByID(id string) (*model.Vacancy, error) {
-	//TODO implement me
-	panic("implement me")
+	var vacancy model.Vacancy
+	if err := v.db.First(&vacancy, id).Error; err != nil {
+		return nil, err
+	}
+	return &vacancy, nil
 }
 
 func (v *VacancyPostgres) UpdateVacancy() {

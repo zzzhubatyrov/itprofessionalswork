@@ -33,14 +33,15 @@ type RoleHandler interface {
 }
 
 type CompanyHandler interface {
-	CreateCompany()
-	GetVacancy()
+	//CreateCompany(data model.Company, secretKey string, ctx *fiber.Ctx) (*model.Company, error)
+	CreateCompany(data model.Company) (*model.Company, error)
+	//GetVacancy()
 	//GetVacancyByID()
 	//GetAllVacancy()
 }
 
 type VacancyHandler interface {
-	CreateVacancy(data model.Vacancy) (model.Vacancy, error)
+	CreateVacancy(data model.Vacancy) (*model.Vacancy, error)
 	GetAllVacancy(data []model.Vacancy) ([]model.Vacancy, error)
 	GetVacancyByID(id string) (*model.Vacancy, error)
 	UpdateVacancy()
@@ -59,6 +60,7 @@ func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Authorization:  NewAuthService(repos.Authorization),
 		UserHandler:    NewUserService(repos.UserHandler),
+		CompanyHandler: NewCompanyService(repos.CompanyHandler),
 		VacancyHandler: NewVacancyService(repos.VacancyHandler),
 		RoleHandler:    NewRoleService(repos.RoleHandler),
 	}

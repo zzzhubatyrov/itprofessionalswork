@@ -2,6 +2,7 @@ package model
 
 type Vacancy struct {
 	ID          int    `json:"id" gorm:"primaryKey"`
+	CompanyID   int    `json:"companyID"`
 	CompanyName string `json:"companyName"`
 	CompanyTag  string `json:"companyTag"`
 	Direction   string `json:"direction"`

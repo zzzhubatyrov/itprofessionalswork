@@ -30,6 +30,7 @@ func (h *Handler) InitRoute(app *fiber.App) fiber.Handler {
 	//dataV1.Get("/user/resume")
 	dataV1.Post("/user/create-resume", h.createResume)
 	dataV1.Put("/user/update/resume/:id", h.updateResume)
+	dataV1.Post("/user/create-company", h.createCompany)
 
 	resume := app.Group("/resume")
 	resumeV1 := resume.Group("/v1")
@@ -37,8 +38,13 @@ func (h *Handler) InitRoute(app *fiber.App) fiber.Handler {
 
 	vacancy := app.Group("/vacancy")
 	vacancyV1 := vacancy.Group("/v1")
+	vacancyV1.Post("/create-vacancy", h.createVacancy)
 	vacancyV1.Get("/all-vacancies", h.getAllVacancy)
 	vacancyV1.Get("/:id", h.getVacancyByID)
+
+	//company := app.Group("/company")
+	//companyV1 := vacancy.Group("/v1")
+	//companyV1.Get("/all-vacancies")
 
 	// Add middleware on check user role
 	admin := app.Group("/admin-panel")

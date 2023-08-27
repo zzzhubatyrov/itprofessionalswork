@@ -5,6 +5,18 @@ import (
 	"ipw-clean-arch/internal/model"
 )
 
+func (h *Handler) createVacancy(c *fiber.Ctx) error {
+	var data model.Vacancy
+	if err := c.BodyParser(&data); err != nil {
+		return err
+	}
+	createVacancy, err := h.services.CreateVacancy(data)
+	if err != nil {
+		return err
+	}
+	return c.JSON(createVacancy)
+}
+
 func (h *Handler) getAllVacancy(c *fiber.Ctx) error {
 	var data []model.Vacancy
 	getAllVacancy, err := h.services.GetAllVacancy(data)

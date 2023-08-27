@@ -13,9 +13,12 @@ func NewVacancyService(repo repository.VacancyHandler) *VacancyServices {
 	return &VacancyServices{repo: repo}
 }
 
-func (v *VacancyServices) CreateVacancy(data model.Vacancy) (model.Vacancy, error) {
-	//TODO implement me
-	panic("implement me")
+func (v *VacancyServices) CreateVacancy(data model.Vacancy) (*model.Vacancy, error) {
+	createVacancy, err := v.repo.CreateVacancy(data)
+	if err != nil {
+		return nil, err
+	}
+	return createVacancy, nil
 }
 
 func (v *VacancyServices) GetAllVacancy(data []model.Vacancy) ([]model.Vacancy, error) {

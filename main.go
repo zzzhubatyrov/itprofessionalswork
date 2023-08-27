@@ -31,6 +31,8 @@ func main() {
 
 	models := []interface{}{
 		&model.User{},
+		&model.Company{},
+		&model.Vacancy{},
 		//&model.Role{},
 		&model.Resume{},
 	}
