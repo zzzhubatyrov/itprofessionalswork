@@ -7,6 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"ipw-clean-arch/internal/model"
 	"ipw-clean-arch/internal/repository"
+	"ipw-clean-arch/pkg/elasticsearch"
 	"strconv"
 )
 
@@ -19,7 +20,7 @@ func NewUserService(repo repository.UserHandler) *UserServices {
 }
 
 func (u *UserServices) GetUser(data model.User, secretKey string, c *fiber.Ctx) (*model.User, error) {
-	cookie := c.Cookies("ipw_cookie")
+	cookie := c.Cookies("ipwCookie")
 	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
 	})
@@ -38,6 +39,29 @@ func (u *UserServices) GetUser(data model.User, secretKey string, c *fiber.Ctx) 
 	return user, nil
 }
 
+func (u *UserServices) UpdateUser(data model.User, secretKey string, c *fiber.Ctx) (*model.User, error) {
+	cookie := c.Cookies("ipwCookie")
+	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secretKey), nil
+	})
+	if err != nil {
+		c.Status(fiber.StatusUnauthorized)
+		return nil, errors.New("unauthenticated")
+	}
+	if !token.Valid {
+		return nil, errors.New("недействительный JWT токен")
+	}
+	claims := token.Claims.(*jwt.RegisteredClaims)
+	updateUser, err := u.repo.UpdateUser(data, claims)
+	if err != nil {
+		return nil, err
+	}
+	if err := elasticsearch.IndexUser(*updateUser); err != nil {
+		return nil, err
+	}
+	return updateUser, nil
+}
+
 func (u *UserServices) GetAllUsers(data []model.User) ([]model.User, error) {
 	getAllUsers, err := u.repo.GetAllUsers(data)
 	if err != nil {
@@ -48,7 +72,7 @@ func (u *UserServices) GetAllUsers(data []model.User) ([]model.User, error) {
 
 func (u *UserServices) CreateResume(data model.Resume, secretKey string, c *fiber.Ctx) (*model.Resume, error) {
 	var user model.User
-	cookie := c.Cookies("ipw_cookie")
+	cookie := c.Cookies("ipwCookie")
 	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
 	})
@@ -70,9 +94,9 @@ func (u *UserServices) CreateResume(data model.Resume, secretKey string, c *fibe
 	}
 	resume := &model.Resume{
 		UserID:      claims.Issuer,
-		UserEmail:   data.UserEmail,
-		UserName:    data.UserName,
-		UserTag:     data.UserTag,
+		UserEmail:   getUser.Email,
+		UserName:    getUser.Name,
+		UserTag:     getUser.Tag,
 		Direction:   data.Direction,
 		Level:       data.Level,
 		Salary:      data.Salary,
@@ -89,7 +113,7 @@ func (u *UserServices) CreateResume(data model.Resume, secretKey string, c *fibe
 
 func (u *UserServices) UpdateResume(data model.Resume, id, secretKey string, c *fiber.Ctx) (*model.Resume, error) {
 	var user model.User
-	cookie := c.Cookies("ipw_cookie")
+	cookie := c.Cookies("ipwCookie")
 	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
 	})
@@ -132,6 +156,14 @@ func (u *UserServices) GetResume() {
 	panic("implement me")
 }
 
+func (u *UserServices) GetResumeByID(id string) (*model.Resume, error) {
+	getResumeByID, err := u.repo.GetResumeByID(id)
+	if err != nil {
+		return nil, err
+	}
+	return getResumeByID, nil
+}
+
 func (u *UserServices) GetAllResumes(data []model.Resume) ([]model.Resume, error) {
 	getAllResumes, err := u.repo.GetAllResumes(data)
 	if err != nil {
@@ -143,4 +175,43 @@ func (u *UserServices) GetAllResumes(data []model.Resume) ([]model.Resume, error
 func (u *UserServices) DeleteResume() {
 	//TODO implement me
 	panic("implement me")
+}
+
+//func (u *UserServices) CreateResponse(data model.User, secretKey string, c *fiber.Ctx) (*model.User, error) {
+//	//TODO implement me
+//	panic("implement me")
+//}
+
+func (u *UserServices) CreateResponse(data model.Vacancy, secretKey string, c *fiber.Ctx) (*model.Response, error) {
+	var user model.User
+	cookie := c.Cookies("ipwCookie")
+	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secretKey), nil
+	})
+	if err != nil {
+		c.Status(fiber.StatusUnauthorized)
+		return nil, errors.New("unauthenticated")
+	}
+	claims, ok := token.Claims.(*jwt.RegisteredClaims)
+	getUser, err := u.repo.GetUser(user, claims)
+	if !ok {
+		return nil, fmt.Errorf("неверный формат токена")
+	}
+	if claims.Valid() != nil {
+		return nil, fmt.Errorf("невалидный токен: %v", claims.Valid())
+	}
+	response := &model.Response{
+		UserID:      getUser.ID,
+		VacancyID:   data.ID,
+		CompanyName: data.CompanyName,
+		JobTitle:    data.Level + " " + data.Direction,
+		Applicant:   getUser.Name,
+		Email:       getUser.Email,
+		Phone:       getUser.Number,
+	}
+	createResponse, err := u.repo.CreateResponse(response)
+	if err != nil {
+		return nil, err
+	}
+	return createResponse, nil
 }

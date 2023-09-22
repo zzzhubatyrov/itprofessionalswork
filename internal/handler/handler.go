@@ -26,15 +26,18 @@ func (h *Handler) InitRoute(app *fiber.App) fiber.Handler {
 	data := app.Group("/data")
 	dataV1 := data.Group("/v1")
 	dataV1.Get("/user", h.getUserData)
+	dataV1.Put("/user/update", h.updateUser)
 	dataV1.Get("/users", h.getAllUsers)
 	//dataV1.Get("/user/resume")
 	dataV1.Post("/user/create-resume", h.createResume)
 	dataV1.Put("/user/update/resume/:id", h.updateResume)
 	dataV1.Post("/user/create-company", h.createCompany)
+	dataV1.Get("/create-response/:id", h.createResponse)
 
 	resume := app.Group("/resume")
 	resumeV1 := resume.Group("/v1")
 	resumeV1.Get("/resumes", h.getAllResumes)
+	resumeV1.Get("/:id", h.getResumeByID)
 
 	vacancy := app.Group("/vacancy")
 	vacancyV1 := vacancy.Group("/v1")
@@ -53,6 +56,11 @@ func (h *Handler) InitRoute(app *fiber.App) fiber.Handler {
 	role := adminV1.Group("/role")
 	roleV1 := role.Group("/v1")
 	roleV1.Get("/roles", h.getAllRoles)
+
+	search := app.Group("/search")
+	searchV1 := search.Group("/v1")
+	searchV1.Get("/search/user/:tag", h.searchUser)
+	searchV1.Get("/data", h.esData)
 
 	return nil
 }

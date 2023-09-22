@@ -17,12 +17,16 @@ type UserHandler interface {
 	ResumeHandler
 	GetUser(data model.User, claims *jwt.RegisteredClaims) (*model.User, error)
 	GetAllUsers(data []model.User) ([]model.User, error)
+	UpdateUser(data model.User, claims *jwt.RegisteredClaims) (*model.User, error)
+	//CreateResponse(data model.User, claims *jwt.RegisteredClaims) (*model.User, error)
+	CreateResponse(data *model.Response) (*model.Response, error)
 }
 
 type ResumeHandler interface {
 	CreateResume(data *model.Resume) (*model.Resume, error)
 	UpdateResume(data *model.Resume, id string) (*model.Resume, error)
 	GetResume()
+	GetResumeByID(id string) (*model.Resume, error)
 	GetAllResumes(data []model.Resume) ([]model.Resume, error)
 	DeleteResume()
 }

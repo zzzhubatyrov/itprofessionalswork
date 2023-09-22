@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/spf13/viper"
@@ -10,6 +11,7 @@ import (
 	"ipw-clean-arch/internal/repository"
 	"ipw-clean-arch/internal/service"
 	_ "ipw-clean-arch/internal/service"
+	"time"
 )
 
 func main() {
@@ -31,9 +33,10 @@ func main() {
 
 	models := []interface{}{
 		&model.User{},
-		&model.Company{},
-		&model.Vacancy{},
+		//&model.Company{},
+		//&model.Vacancy{},
 		//&model.Role{},
+		&model.Response{},
 		&model.Resume{},
 	}
 	//migrator := db.Migrator()
@@ -53,7 +56,21 @@ func main() {
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowCredentials: true,
 	}))
+	cfg := swagger.Config{
+		BasePath: "/",
+		FilePath: "./docs/swagger.yaml",
+		Path:     "swagger",
+		Title:    "Swagger API Docs",
+	}
+	app.Use(swagger.New(cfg))
+	app.Use(func(c *fiber.Ctx) error {
+		currentTime := time.Now().Format("2006-01-02 15:04:05")
+		message := fmt.Sprintf("[IPW-Log][%s] port: %s method: %s - %s", currentTime, c.IP(), c.Method(), c.Path())
+		fmt.Println(message)
+		return c.Next()
+	})
 	handlers.InitRoute(app)
+	//messenger.InitializeMessenger(app)
 	app.Listen(":5000")
 }
 

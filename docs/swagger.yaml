@@ -1,0 +1,15 @@
+swagger: "2.0"
+paths:
+  /data/v1/user:
+    get:
+      summary: Get User Data
+      responses:
+        200:
+          description: Successfully Operation
+info:
+  title: IPW API
+  description: This Swagger for IPW api
+  version: 2.0.0
+  contact:
+    name: Rodion Zhubatyrov
+    email: whqhub@bk.ru
