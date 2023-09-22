@@ -16,7 +16,7 @@ func NewUserPostgres(db *gorm.DB) *UserPostgres {
 }
 
 func (u *UserPostgres) GetUser(data model.User, claims *jwt.RegisteredClaims) (*model.User, error) {
-	if err := u.db.Preload("Resume").Preload("Role").Where("id = ?", claims.Issuer).First(&data).Error; err != nil {
+	if err := u.db.Preload("Resume").Preload("Response").Preload("Role").Where("id = ?", claims.Issuer).First(&data).Error; err != nil {
 		return nil, err
 	}
 	return &data, nil
@@ -27,6 +27,35 @@ func (u *UserPostgres) GetAllUsers(data []model.User) ([]model.User, error) {
 		return nil, err
 	}
 	return data, nil
+}
+
+func (u *UserPostgres) UpdateUser(data model.User, claims *jwt.RegisteredClaims) (*model.User, error) {
+	var user model.User
+	if err := u.db.Preload("Role").Where("id = ?", claims.Issuer).First(&user).Error; err != nil {
+		return nil, err
+	}
+	if data.Age != "" {
+		user.Age = data.Age
+	}
+	if data.Tag != "" {
+		user.Tag = data.Tag
+	}
+	if data.Number != "" {
+		user.Number = data.Number
+	}
+	if data.Location != "" {
+		user.Location = data.Location
+	}
+	if data.Description != "" {
+		user.Description = data.Description
+	}
+	if data.Gender != "" {
+		user.Gender = data.Gender
+	}
+	if err := u.db.Save(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
 
 func (u *UserPostgres) CreateResume(data *model.Resume) (*model.Resume, error) {
@@ -64,6 +93,14 @@ func (u *UserPostgres) GetResume() {
 	panic("implement me")
 }
 
+func (u *UserPostgres) GetResumeByID(id string) (*model.Resume, error) {
+	var resume model.Resume
+	if err := u.db.First(&resume, id).Error; err != nil {
+		return nil, err
+	}
+	return &resume, nil
+}
+
 func (u *UserPostgres) GetAllResumes(data []model.Resume) ([]model.Resume, error) {
 	if err := u.db.Find(&data).Error; err != nil {
 		return nil, err
@@ -74,4 +111,16 @@ func (u *UserPostgres) GetAllResumes(data []model.Resume) ([]model.Resume, error
 func (u *UserPostgres) DeleteResume() {
 	//TODO implement me
 	panic("implement me")
+}
+
+//func (u *UserPostgres) CreateResponse(data model.User, claims *jwt.RegisteredClaims) (*model.User, error) {
+//	//TODO implement me
+//	panic("implement me")
+//}
+
+func (u *UserPostgres) CreateResponse(data *model.Response) (*model.Response, error) {
+	if err := u.db.Create(data).Error; err != nil {
+		return nil, err
+	}
+	return data, nil
 }

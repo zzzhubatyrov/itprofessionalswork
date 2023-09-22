@@ -30,6 +30,15 @@ func (h *Handler) updateResume(c *fiber.Ctx) error {
 	return c.JSON(updateResume)
 }
 
+func (h *Handler) getResumeByID(c *fiber.Ctx) error {
+	id := c.Params("id")
+	getResumeByID, err := h.services.GetResumeByID(id)
+	if err != nil {
+		return err
+	}
+	return c.JSON(getResumeByID)
+}
+
 func (h *Handler) getAllResumes(c *fiber.Ctx) error {
 	var data []model.Resume
 	resumes, err := h.services.GetAllResumes(data)

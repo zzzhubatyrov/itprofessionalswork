@@ -27,19 +27,8 @@ func (u *AuthServices) Register(data model.User) (*model.User, error) {
 		Email:    data.Email,
 		Password: string(password),
 		Name:     data.Name,
-		Age:      data.Age,
-		Tag:      data.Tag,
 		RoleID:   4,
 	}
-	//var role Role
-	//roleResult := db.First(&role, regUser.RoleID)
-	//if roleResult.Error != nil {
-	//	return nil, fmt.Errorf("failed to find role: %v", roleResult.Error)
-	//}
-	//role.UserCount++
-	//if err := db.Save(&role).Error; err != nil {
-	//	return nil, err
-	//}
 	regUser, err := u.repo.Register(user)
 	if err != nil {
 		return nil, err
@@ -70,13 +59,13 @@ func (u *AuthServices) Login(data model.User, secretKey string, c *fiber.Ctx) er
 		})
 	}
 	cookie := fiber.Cookie{
-		Name:     "ipw_cookie",
+		Name:     "ipwCookie",
 		Value:    token,
 		Expires:  time.Now().Add(time.Hour * 24),
-		HTTPOnly: true,
+		HTTPOnly: false,
 		Secure:   false,
-		SameSite: "Lax",
-		Domain:   "localhost",
+		//SameSite: "Lax",
+		//Domain: "localhost",
 	}
 	c.Cookie(&cookie)
 	if cookie.Value != "" {
@@ -87,10 +76,13 @@ func (u *AuthServices) Login(data model.User, secretKey string, c *fiber.Ctx) er
 
 func (u *AuthServices) Logout(c *fiber.Ctx) error {
 	cookie := fiber.Cookie{
-		Name:     "ipw_cookie",
+		Name:     "ipwCookie",
 		Value:    "",
 		Expires:  time.Now().Add(-time.Hour),
-		HTTPOnly: true,
+		HTTPOnly: false,
+		Secure:   false,
+		SameSite: "Lax",
+		Domain:   "localhost",
 	}
 	c.Cookie(&cookie)
 	return c.JSON(fiber.Map{
