@@ -5,6 +5,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"gorm.io/gorm"
 	"ipw-clean-arch/internal/model"
+	"log"
 )
 
 type UserPostgres struct {
@@ -34,8 +35,8 @@ func (u *UserPostgres) UpdateUser(data model.User, claims *jwt.RegisteredClaims)
 	if err := u.db.Preload("Role").Where("id = ?", claims.Issuer).First(&user).Error; err != nil {
 		return nil, err
 	}
-	if data.Age != "" {
-		user.Age = data.Age
+	if data.Birthday != "" {
+		user.Birthday = data.Birthday
 	}
 	if data.Tag != "" {
 		user.Tag = data.Tag
@@ -108,9 +109,13 @@ func (u *UserPostgres) GetAllResumes(data []model.Resume) ([]model.Resume, error
 	return data, nil
 }
 
-func (u *UserPostgres) DeleteResume() {
-	//TODO implement me
-	panic("implement me")
+func (u *UserPostgres) DeleteResume(id string) error {
+	var resume model.Resume
+	if err := u.db.First(&resume, id).Delete(resume).Error; err != nil {
+		log.Println(err)
+		return err
+	}
+	return errors.New("delete)")
 }
 
 //func (u *UserPostgres) CreateResponse(data model.User, claims *jwt.RegisteredClaims) (*model.User, error) {

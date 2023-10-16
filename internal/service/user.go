@@ -7,7 +7,6 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"ipw-clean-arch/internal/model"
 	"ipw-clean-arch/internal/repository"
-	"ipw-clean-arch/pkg/elasticsearch"
 	"strconv"
 )
 
@@ -56,9 +55,9 @@ func (u *UserServices) UpdateUser(data model.User, secretKey string, c *fiber.Ct
 	if err != nil {
 		return nil, err
 	}
-	if err := elasticsearch.IndexUser(*updateUser); err != nil {
-		return nil, err
-	}
+	//if err := elasticsearch.IndexUser(*updateUser); err != nil {
+	//	return nil, err
+	//}
 	return updateUser, nil
 }
 
@@ -93,9 +92,11 @@ func (u *UserServices) CreateResume(data model.Resume, secretKey string, c *fibe
 		return nil, errors.New("вы не можете создавать резюме для других пользователей")
 	}
 	resume := &model.Resume{
-		UserID:      claims.Issuer,
-		UserEmail:   getUser.Email,
-		UserName:    getUser.Name,
+		UserID:    claims.Issuer,
+		UserEmail: getUser.Email,
+		UserName:  getUser.Name,
+		//UserAge:     getUser.Age,
+		UserGender:  getUser.Gender,
 		UserTag:     getUser.Tag,
 		Direction:   data.Direction,
 		Level:       data.Level,
@@ -103,7 +104,19 @@ func (u *UserServices) CreateResume(data model.Resume, secretKey string, c *fibe
 		Location:    data.Location,
 		Status:      data.Status,
 		Description: data.Description,
+		Skills:      data.Skills,
 	}
+	//UserID:      claims.Issuer,
+	//UserEmail:   getUser.Email,
+	//UserName:    getUser.Name,
+	//UserTag:     getUser.Tag,
+	//Direction:   data.Direction,
+	//Level:       data.Level,
+	//Salary:      data.Salary,
+	//Location:    data.Location,
+	//Status:      data.Status,
+	//Description: data.Description,
+	//Skills:      data.Skills,
 	createResume, err := u.repo.CreateResume(resume)
 	if err != nil {
 		return nil, err
@@ -143,6 +156,7 @@ func (u *UserServices) UpdateResume(data model.Resume, id, secretKey string, c *
 		Location:    data.Location,
 		Status:      data.Status,
 		Description: data.Description,
+		Skills:      data.Skills,
 	}
 	updateResume, err := u.repo.UpdateResume(resume, id)
 	if err != nil {
@@ -172,9 +186,8 @@ func (u *UserServices) GetAllResumes(data []model.Resume) ([]model.Resume, error
 	return getAllResumes, nil
 }
 
-func (u *UserServices) DeleteResume() {
-	//TODO implement me
-	panic("implement me")
+func (u *UserServices) DeleteResume(id string) error {
+	return u.repo.DeleteResume(id)
 }
 
 //func (u *UserServices) CreateResponse(data model.User, secretKey string, c *fiber.Ctx) (*model.User, error) {

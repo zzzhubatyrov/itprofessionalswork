@@ -47,3 +47,9 @@ func (h *Handler) getAllResumes(c *fiber.Ctx) error {
 	}
 	return c.JSON(resumes)
 }
+
+func (h *Handler) deleteResume(c *fiber.Ctx) error {
+	id := c.Params("id")
+	delResume := h.services.DeleteResume(id)
+	return c.JSON(delResume)
+}

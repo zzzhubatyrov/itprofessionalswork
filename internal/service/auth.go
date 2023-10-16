@@ -6,6 +6,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"ipw-clean-arch/internal/model"
 	"ipw-clean-arch/internal/repository"
+	"ipw-clean-arch/pkg/tagGenerator"
 	"strconv"
 	"time"
 )
@@ -27,7 +28,8 @@ func (u *AuthServices) Register(data model.User) (*model.User, error) {
 		Email:    data.Email,
 		Password: string(password),
 		Name:     data.Name,
-		RoleID:   4,
+		Tag:      "@" + tagGenerator.GenerateUserTag(),
+		RoleID:   1,
 	}
 	regUser, err := u.repo.Register(user)
 	if err != nil {

@@ -5,11 +5,15 @@ type Resume struct {
 	UserID      string `json:"userID"`
 	UserEmail   string `json:"userEmail"`
 	UserName    string `json:"userName"`
+	UserAge     string `json:"userAge"`
+	UserGender  string `json:"userGender"`
 	UserTag     string `json:"userTag"`
+	UserNumber  string `json:"userNumber"`
 	Direction   string `json:"direction"`
 	Level       string `json:"level"`
 	Salary      string `json:"salary"`
 	Location    string `json:"location"`
 	Status      string `json:"status"`
 	Description string `json:"description"`
+	Skills      string `json:"skills"`
 }

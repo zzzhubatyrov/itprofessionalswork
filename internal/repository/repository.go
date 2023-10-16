@@ -28,7 +28,7 @@ type ResumeHandler interface {
 	GetResume()
 	GetResumeByID(id string) (*model.Resume, error)
 	GetAllResumes(data []model.Resume) ([]model.Resume, error)
-	DeleteResume()
+	DeleteResume(id string) error
 }
 
 // RoleHandler TODO Add GetUserRole(), CheckUserRole()

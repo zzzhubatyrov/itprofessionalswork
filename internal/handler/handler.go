@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
 	"ipw-clean-arch/internal/service"
@@ -38,6 +39,7 @@ func (h *Handler) InitRoute(app *fiber.App) fiber.Handler {
 	resumeV1 := resume.Group("/v1")
 	resumeV1.Get("/resumes", h.getAllResumes)
 	resumeV1.Get("/:id", h.getResumeByID)
+	resumeV1.Post("/delete/:id", h.deleteResume)
 
 	vacancy := app.Group("/vacancy")
 	vacancyV1 := vacancy.Group("/v1")
@@ -61,6 +63,10 @@ func (h *Handler) InitRoute(app *fiber.App) fiber.Handler {
 	searchV1 := search.Group("/v1")
 	searchV1.Get("/search/user/:tag", h.searchUser)
 	searchV1.Get("/data", h.esData)
+
+	app.Get("/message", websocket.New(h.sendMessage))
+	app.Post("/send-notify", h.sendNotificationHandler)
+	app.Get("/read-notifications", h.readNotificationsHandler)
 
 	return nil
 }
