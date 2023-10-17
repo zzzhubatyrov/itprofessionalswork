@@ -10,7 +10,7 @@ func (h *Handler) createCompany(c *fiber.Ctx) error {
 	if err := c.BodyParser(&data); err != nil {
 		return err
 	}
-	createCompany, err := h.services.CreateCompany(data)
+	createCompany, err := h.services.CreateCompany(data, secretKey, c)
 	if err != nil {
 		return err
 	}

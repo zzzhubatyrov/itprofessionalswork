@@ -14,12 +14,12 @@ type Authorization interface {
 
 // UserHandler TODO Add GetUserRole()
 type UserHandler interface {
-	ResumeHandler
 	GetUser(data model.User, claims *jwt.RegisteredClaims) (*model.User, error)
 	GetAllUsers(data []model.User) ([]model.User, error)
 	UpdateUser(data model.User, claims *jwt.RegisteredClaims) (*model.User, error)
-	//CreateResponse(data model.User, claims *jwt.RegisteredClaims) (*model.User, error)
 	CreateResponse(data *model.Response) (*model.Response, error)
+	ResumeHandler
+	CompanyHandler
 }
 
 type ResumeHandler interface {
@@ -37,8 +37,9 @@ type RoleHandler interface {
 }
 
 type CompanyHandler interface {
-	CreateCompany(data *model.Company) (*model.Company, error)
-	GetVacancy()
+	//CreateCompany(data *model.Company) (*model.Company, error)
+	CreateCompany(company *model.Company, user *model.User) (*model.Company, error)
+	//GetVacancy()
 	//GetVacancyByID()
 	//GetAllVacancy()
 }
@@ -55,7 +56,6 @@ type Repository struct {
 	Authorization
 	UserHandler
 	RoleHandler
-	CompanyHandler
 	VacancyHandler
 }
 
@@ -64,7 +64,6 @@ func NewRepository(db *gorm.DB) *Repository {
 		Authorization:  NewAuthPostgres(db),
 		UserHandler:    NewUserPostgres(db),
 		VacancyHandler: NewVacancyPostgres(db),
-		CompanyHandler: NewCompanyPostgres(db),
 		RoleHandler:    NewRolePostgres(db),
 	}
 }

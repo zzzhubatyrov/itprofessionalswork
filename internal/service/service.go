@@ -14,13 +14,12 @@ type Authorization interface {
 }
 
 type UserHandler interface {
-	ResumeHandler
 	GetUser(data model.User, secretKey string, c *fiber.Ctx) (*model.User, error)
 	GetAllUsers(data []model.User) ([]model.User, error)
 	UpdateUser(data model.User, secretKey string, c *fiber.Ctx) (*model.User, error)
-	//CreateResponse(data model.User, secretKey string, c *fiber.Ctx) (*model.User, error)
-	//CreateResponse(data model.Response, id string) (*model.Response, error)
 	CreateResponse(data model.Vacancy, secretKey string, c *fiber.Ctx) (*model.Response, error)
+	ResumeHandler
+	CompanyHandler
 }
 
 type ResumeHandler interface {
@@ -39,7 +38,7 @@ type RoleHandler interface {
 
 type CompanyHandler interface {
 	//CreateCompany(data model.Company, secretKey string, ctx *fiber.Ctx) (*model.Company, error)
-	CreateCompany(data model.Company) (*model.Company, error)
+	CreateCompany(data model.Company, secretKey string, c *fiber.Ctx) (*model.Company, error)
 	//GetVacancy()
 	//GetVacancyByID()
 	//GetAllVacancy()
@@ -57,7 +56,6 @@ type Service struct {
 	Authorization
 	UserHandler
 	RoleHandler
-	CompanyHandler
 	VacancyHandler
 }
 
@@ -65,7 +63,6 @@ func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Authorization:  NewAuthService(repos.Authorization),
 		UserHandler:    NewUserService(repos.UserHandler),
-		CompanyHandler: NewCompanyService(repos.CompanyHandler),
 		VacancyHandler: NewVacancyService(repos.VacancyHandler),
 		RoleHandler:    NewRoleService(repos.RoleHandler),
 	}

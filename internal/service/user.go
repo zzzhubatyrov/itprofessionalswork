@@ -228,3 +228,37 @@ func (u *UserServices) CreateResponse(data model.Vacancy, secretKey string, c *f
 	}
 	return createResponse, nil
 }
+
+func (u *UserServices) CreateCompany(data model.Company, secretKey string, c *fiber.Ctx) (*model.Company, error) {
+	var user model.User
+	cookie := c.Cookies("ipwCookie")
+	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secretKey), nil
+	})
+	if err != nil {
+		c.Status(fiber.StatusUnauthorized)
+		return nil, errors.New("unauthenticated")
+	}
+	claims, ok := token.Claims.(*jwt.RegisteredClaims)
+	getUser, err := u.repo.GetUser(user, claims)
+	if !ok {
+		return nil, fmt.Errorf("неверный формат токена")
+	}
+	if claims.Valid() != nil {
+		return nil, fmt.Errorf("невалидный токен: %v", claims.Valid())
+	}
+	company := &model.Company{
+		UserID:      getUser.ID,
+		Name:        data.Name,
+		Tag:         data.Tag,
+		Email:       data.Email,
+		Phone:       data.Phone,
+		Location:    data.Location,
+		Description: data.Description,
+	}
+	createCompany, err := u.repo.CreateCompany(company, getUser)
+	if err != nil {
+		return nil, err
+	}
+	return createCompany, nil
+}

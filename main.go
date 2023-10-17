@@ -33,11 +33,11 @@ func main() {
 
 	models := []interface{}{
 		&model.User{},
-		//&model.Company{},
-		//&model.Vacancy{},
-		//&model.Role{},
+		&model.Company{},
+		&model.Vacancy{},
 		&model.Response{},
 		&model.Resume{},
+		//&model.Role{},
 	}
 	//migrator := db.Migrator()
 	//_ = migrator.DropTable(models...)

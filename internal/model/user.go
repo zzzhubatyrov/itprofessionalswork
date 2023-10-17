@@ -13,11 +13,10 @@ type User struct {
 	Location    string     `json:"location"`
 	Description string     `json:"description"`
 	Gender      string     `json:"gender"`
-	Blocked     bool       `json:"blocked"`
+	Blocked     bool       `json:"blocked" gorm:"default:false"`
 	Role        Role       `json:"role" gorm:"foreignKey:RoleID"`
+	Company     *Company   `json:"company" gorm:"foreignKey:UserID"`
 	Resume      []Resume   `json:"resumes"`
 	Response    []Response `json:"responses"`
 	Chats       []Chat     `json:"chats" gorm:"many2many:user_chats"`
-	//Age         string     `json:"age"`
-
 }

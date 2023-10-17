@@ -17,7 +17,7 @@ func NewUserPostgres(db *gorm.DB) *UserPostgres {
 }
 
 func (u *UserPostgres) GetUser(data model.User, claims *jwt.RegisteredClaims) (*model.User, error) {
-	if err := u.db.Preload("Resume").Preload("Response").Preload("Role").Where("id = ?", claims.Issuer).First(&data).Error; err != nil {
+	if err := u.db.Preload("Resume").Preload("Company").Preload("Response").Preload("Role").Where("id = ?", claims.Issuer).First(&data).Error; err != nil {
 		return nil, err
 	}
 	return &data, nil
@@ -128,4 +128,18 @@ func (u *UserPostgres) CreateResponse(data *model.Response) (*model.Response, er
 		return nil, err
 	}
 	return data, nil
+}
+
+func (u *UserPostgres) CreateCompany(company *model.Company, user *model.User) (*model.Company, error) {
+	if user.Company != nil {
+		return nil, errors.New("Пользователь уже создал компанию")
+	} else if err := u.db.Create(&company).Error; err != nil {
+		return nil, err
+	}
+	return company, nil
+}
+
+func (u *UserPostgres) GetVacancy() {
+	//TODO implement me
+	panic("implement me")
 }
