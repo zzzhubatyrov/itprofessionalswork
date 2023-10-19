@@ -13,3 +13,9 @@ func (h *Handler) getAllRoles(c *fiber.Ctx) error {
 	}
 	return c.JSON(getAllRoles)
 }
+
+func (h *Handler) updateRoleByUserID(c *fiber.Ctx) error {
+	id := c.Params("id")
+	updateRoleByUserID := h.services.UpdateRoleByUserID(id, 1)
+	return c.JSON(updateRoleByUserID)
+}

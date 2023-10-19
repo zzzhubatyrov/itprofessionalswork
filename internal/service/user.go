@@ -256,9 +256,14 @@ func (u *UserServices) CreateCompany(data model.Company, secretKey string, c *fi
 		Location:    data.Location,
 		Description: data.Description,
 	}
-	createCompany, err := u.repo.CreateCompany(company, getUser)
+	createCompany, err := u.repo.CreateCompany(company, getUser, claims)
 	if err != nil {
 		return nil, err
 	}
 	return createCompany, nil
+}
+
+func (u *UserServices) UpdateRoleByUserID(userID string, roleID int) error {
+	updateRoleByUserID := u.repo.UpdateRoleByUserID(userID, roleID)
+	return updateRoleByUserID
 }

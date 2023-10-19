@@ -52,12 +52,13 @@ func (h *Handler) InitRoute(app *fiber.App) fiber.Handler {
 	//companyV1.Get("/all-vacancies")
 
 	// Add middleware on check user role
-	admin := app.Group("/admin-panel")
-	adminV1 := admin.Group("/v1")
+	//admin := app.Group("/admin-panel")
+	//adminV1 := admin.Group("/v1")
 	//adminV1.Get("/roles")
-	role := adminV1.Group("/role")
+	role := app.Group("/role")
 	roleV1 := role.Group("/v1")
 	roleV1.Get("/roles", h.getAllRoles)
+	roleV1.Put("/update/:id", h.updateRoleByUserID)
 
 	search := app.Group("/search")
 	searchV1 := search.Group("/v1")

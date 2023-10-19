@@ -32,15 +32,15 @@ func main() {
 	}
 
 	models := []interface{}{
-		&model.User{},
+		//&model.User{},
 		&model.Company{},
-		&model.Vacancy{},
-		&model.Response{},
-		&model.Resume{},
+		//&model.Vacancy{},
+		//&model.Response{},
+		//&model.Resume{},
 		//&model.Role{},
 	}
-	//migrator := db.Migrator()
-	//_ = migrator.DropTable(models...)
+	migrator := db.Migrator()
+	_ = migrator.DropTable(models...)
 	_ = db.AutoMigrate(models...)
 	//db.Create(&model.Role{Name: "Администратор"})
 	//db.Create(&model.Role{Name: "Модератор"})

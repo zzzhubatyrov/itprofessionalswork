@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 	"ipw-clean-arch/internal/model"
 	"log"
+	"strconv"
 )
 
 type UserPostgres struct {
@@ -118,11 +119,6 @@ func (u *UserPostgres) DeleteResume(id string) error {
 	return errors.New("delete)")
 }
 
-//func (u *UserPostgres) CreateResponse(data model.User, claims *jwt.RegisteredClaims) (*model.User, error) {
-//	//TODO implement me
-//	panic("implement me")
-//}
-
 func (u *UserPostgres) CreateResponse(data *model.Response) (*model.Response, error) {
 	if err := u.db.Create(data).Error; err != nil {
 		return nil, err
@@ -130,13 +126,31 @@ func (u *UserPostgres) CreateResponse(data *model.Response) (*model.Response, er
 	return data, nil
 }
 
-func (u *UserPostgres) CreateCompany(company *model.Company, user *model.User) (*model.Company, error) {
+func (u *UserPostgres) CreateCompany(company *model.Company, user *model.User, claims *jwt.RegisteredClaims) (*model.Company, error) {
+	if err := u.db.Preload("Role").Where("id = ?", claims.Issuer).First(&user).Error; err != nil {
+		return nil, err
+	}
 	if user.Company != nil {
 		return nil, errors.New("Пользователь уже создал компанию")
-	} else if err := u.db.Create(&company).Error; err != nil {
+	} else if err := u.db.Preload("Role").Create(&company).Error; err != nil {
+		return nil, err
+	}
+	if err := u.UpdateRoleByUserID(strconv.Itoa(user.ID), 3); err != nil {
 		return nil, err
 	}
 	return company, nil
+}
+
+func (u *UserPostgres) UpdateRoleByUserID(userID string, roleID int) error {
+	var user model.User
+	if err := u.db.First(&user, userID).Error; err != nil {
+		return err
+	}
+	user.RoleID = roleID
+	if err := u.db.Save(&user).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (u *UserPostgres) GetVacancy() {

@@ -37,7 +37,7 @@ type RoleHandler interface {
 }
 
 type CompanyHandler interface {
-	//CreateCompany(data model.Company, secretKey string, ctx *fiber.Ctx) (*model.Company, error)
+	UpdateRoleByUserID(userID string, roleID int) error
 	CreateCompany(data model.Company, secretKey string, c *fiber.Ctx) (*model.Company, error)
 	//GetVacancy()
 	//GetVacancyByID()

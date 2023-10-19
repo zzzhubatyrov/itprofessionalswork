@@ -37,8 +37,8 @@ type RoleHandler interface {
 }
 
 type CompanyHandler interface {
-	//CreateCompany(data *model.Company) (*model.Company, error)
-	CreateCompany(company *model.Company, user *model.User) (*model.Company, error)
+	UpdateRoleByUserID(userID string, roleID int) error
+	CreateCompany(company *model.Company, user *model.User, claims *jwt.RegisteredClaims) (*model.Company, error)
 	//GetVacancy()
 	//GetVacancyByID()
 	//GetAllVacancy()
