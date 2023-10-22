@@ -16,3 +16,12 @@ func (h *Handler) createCompany(c *fiber.Ctx) error {
 	}
 	return c.JSON(createCompany)
 }
+
+func (h *Handler) getCompanyByID(c *fiber.Ctx) error {
+	id := c.Params("id")
+	getCompanyByID, err := h.services.GetCompanyByID(id)
+	if err != nil {
+		return err
+	}
+	return c.JSON(getCompanyByID)
+}

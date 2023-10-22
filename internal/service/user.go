@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
+	"io/ioutil"
 	"ipw-clean-arch/internal/model"
 	"ipw-clean-arch/internal/repository"
+	"log"
 	"strconv"
 )
 
@@ -59,6 +61,42 @@ func (u *UserServices) UpdateUser(data model.User, secretKey string, c *fiber.Ct
 	//	return nil, err
 	//}
 	return updateUser, nil
+}
+
+func (u *UserServices) UploadPhoto(secretKey string, c *fiber.Ctx) (*model.User, error) {
+	cookie := c.Cookies("ipwCookie")
+	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secretKey), nil
+	})
+	if err != nil {
+		c.Status(fiber.StatusUnauthorized)
+		return nil, errors.New("unauthenticated")
+	}
+	if !token.Valid {
+		return nil, errors.New("недействительный JWT токен")
+	}
+	claims := token.Claims.(*jwt.RegisteredClaims)
+	file, err := c.FormFile("photo")
+	if err != nil {
+		return nil, err
+	}
+	fileBytes, err := file.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer fileBytes.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+	photoData, err := ioutil.ReadAll(fileBytes)
+	if err != nil {
+		return nil, err
+	}
+	uploadPhoto, err := u.repo.UploadPhoto(claims, photoData)
+	if err != nil {
+		return nil, err
+	}
+	return uploadPhoto, nil
 }
 
 func (u *UserServices) GetAllUsers(data []model.User) ([]model.User, error) {
@@ -190,11 +228,6 @@ func (u *UserServices) DeleteResume(id string) error {
 	return u.repo.DeleteResume(id)
 }
 
-//func (u *UserServices) CreateResponse(data model.User, secretKey string, c *fiber.Ctx) (*model.User, error) {
-//	//TODO implement me
-//	panic("implement me")
-//}
-
 func (u *UserServices) CreateResponse(data model.Vacancy, secretKey string, c *fiber.Ctx) (*model.Response, error) {
 	var user model.User
 	cookie := c.Cookies("ipwCookie")
@@ -229,7 +262,7 @@ func (u *UserServices) CreateResponse(data model.Vacancy, secretKey string, c *f
 	return createResponse, nil
 }
 
-func (u *UserServices) CreateCompany(data model.Company, secretKey string, c *fiber.Ctx) (*model.Company, error) {
+func (u *UserServices) CreateCompany(company model.Company, secretKey string, c *fiber.Ctx) (*model.Company, error) {
 	var user model.User
 	cookie := c.Cookies("ipwCookie")
 	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
@@ -247,16 +280,19 @@ func (u *UserServices) CreateCompany(data model.Company, secretKey string, c *fi
 	if claims.Valid() != nil {
 		return nil, fmt.Errorf("невалидный токен: %v", claims.Valid())
 	}
-	company := &model.Company{
+	data := &model.Company{
 		UserID:      getUser.ID,
-		Name:        data.Name,
-		Tag:         data.Tag,
-		Email:       data.Email,
-		Phone:       data.Phone,
-		Location:    data.Location,
-		Description: data.Description,
+		Name:        company.Name,
+		Tag:         company.Tag,
+		Email:       company.Email,
+		Phone:       company.Phone,
+		Location:    company.Location,
+		Description: company.Description,
 	}
-	createCompany, err := u.repo.CreateCompany(company, getUser, claims)
+	if err != nil {
+		return nil, err
+	}
+	createCompany, err := u.repo.CreateCompany(data, getUser, claims)
 	if err != nil {
 		return nil, err
 	}
@@ -266,4 +302,46 @@ func (u *UserServices) CreateCompany(data model.Company, secretKey string, c *fi
 func (u *UserServices) UpdateRoleByUserID(userID string, roleID int) error {
 	updateRoleByUserID := u.repo.UpdateRoleByUserID(userID, roleID)
 	return updateRoleByUserID
+}
+
+func (u *UserServices) GetCompanyByID(id string) (*model.Company, error) {
+	getCompanyByID, err := u.repo.GetCompanyByID(id)
+	if err != nil {
+		return nil, err
+	}
+	return getCompanyByID, nil
+}
+
+func (u *UserServices) CreateVacancy(data model.Vacancy) (*model.Vacancy, error) {
+	createVacancy, err := u.repo.CreateVacancy(data)
+	if err != nil {
+		return nil, err
+	}
+	return createVacancy, nil
+}
+
+func (u *UserServices) GetAllVacancy(data []model.Vacancy) ([]model.Vacancy, error) {
+	getAllVacancy, err := u.repo.GetAllVacancy(data)
+	if err != nil {
+		return nil, err
+	}
+	return getAllVacancy, nil
+}
+
+func (u *UserServices) GetVacancyByID(id string) (*model.Vacancy, error) {
+	getVacancyByID, err := u.repo.GetVacancyByID(id)
+	if err != nil {
+		return nil, err
+	}
+	return getVacancyByID, nil
+}
+
+func (u *UserServices) UpdateVacancy() {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (u *UserServices) DeleteVacancy() {
+	//TODO implement me
+	panic("implement me")
 }

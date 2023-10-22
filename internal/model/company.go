@@ -3,8 +3,9 @@ package model
 type Company struct {
 	ID          int       `json:"id" gorm:"primaryKey"`
 	UserID      int       `json:"userID"`
-	Name        string    `json:"name"`
-	Tag         string    `json:"tag"`
+	Photo       []byte    `json:"photo"`
+	Name        string    `json:"name" gorm:"unique"`
+	Tag         string    `json:"tag" gorm:"unique"`
 	Email       string    `json:"email"`
 	Phone       string    `json:"phone"`
 	Location    string    `json:"location"`

@@ -29,7 +29,7 @@ func (u *AuthServices) Register(data model.User) (*model.User, error) {
 		Password: string(password),
 		Name:     data.Name,
 		Tag:      "@" + tagGenerator.GenerateUserTag(),
-		RoleID:   1,
+		RoleID:   4,
 	}
 	regUser, err := u.repo.Register(user)
 	if err != nil {

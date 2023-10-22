@@ -26,6 +26,18 @@ func (h *Handler) updateUser(c *fiber.Ctx) error {
 	return c.JSON(updateUser)
 }
 
+func (h *Handler) uploadPhoto(c *fiber.Ctx) error {
+	var data model.User
+	if err := c.BodyParser(&data); err != nil {
+		return err
+	}
+	uploadPhoto, err := h.services.UploadPhoto(secretKey, c)
+	if err != nil {
+		return err
+	}
+	return c.JSON(uploadPhoto)
+}
+
 func (h *Handler) getAllUsers(c *fiber.Ctx) error {
 	var users []model.User
 	getAllUsers, err := h.services.GetAllUsers(users)
