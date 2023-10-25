@@ -10,6 +10,8 @@ type Company struct {
 	Phone       string    `json:"phone"`
 	Location    string    `json:"location"`
 	Description string    `json:"description"`
+	CompanySize string    `json:"companySize"`
+	WebSite     string    `json:"webSite"`
 	Vacancy     []Vacancy `json:"vacancies"`
 	//User        *User     `json:"-" gorm:"foreignKey:UserID"`
 }

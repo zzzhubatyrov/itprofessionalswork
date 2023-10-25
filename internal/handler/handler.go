@@ -1,10 +1,11 @@
 package handler
 
 import (
+	"ipw-clean-arch/internal/service"
+
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
-	"ipw-clean-arch/internal/service"
 )
 
 type Handler struct {
@@ -51,6 +52,7 @@ func (h *Handler) InitRoute(app *fiber.App) fiber.Handler {
 	company := app.Group("/company")
 	companyV1 := company.Group("/v1")
 	companyV1.Get("/:id", h.getCompanyByID)
+	companyV1.Put("update", h.updateCompanyData)
 
 	//companyV1.Get("/all-vacancies")
 

@@ -2,16 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/gofiber/contrib/swagger"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/spf13/viper"
 	"ipw-clean-arch/internal/handler"
 	"ipw-clean-arch/internal/model"
 	"ipw-clean-arch/internal/repository"
 	"ipw-clean-arch/internal/service"
 	_ "ipw-clean-arch/internal/service"
 	"time"
+
+	"github.com/gofiber/contrib/swagger"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/spf13/viper"
 )
 
 func main() {
@@ -32,15 +33,15 @@ func main() {
 	}
 
 	models := []interface{}{
-		//&model.User{},
+		// &model.User{},
 		&model.Company{},
-		//&model.Vacancy{},
-		//&model.Response{},
-		//&model.Resume{},
+		// &model.Vacancy{},
+		// &model.Response{},
+		// &model.Resume{},
 		//&model.Role{},
 	}
-	migrator := db.Migrator()
-	_ = migrator.DropTable(models...)
+	// migrator := db.Migrator()
+	// _ = migrator.DropTable(models...)
 	_ = db.AutoMigrate(models...)
 	//db.Create(&model.Role{Name: "Администратор"})
 	//db.Create(&model.Role{Name: "Модератор"})

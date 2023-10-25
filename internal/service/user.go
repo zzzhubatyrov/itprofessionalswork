@@ -1,15 +1,20 @@
 package service
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
-	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v4"
+	"image"
+	"image/jpeg"
 	"io/ioutil"
 	"ipw-clean-arch/internal/model"
 	"ipw-clean-arch/internal/repository"
 	"log"
 	"strconv"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v4"
+	"github.com/nfnt/resize"
 )
 
 type UserServices struct {
@@ -163,7 +168,6 @@ func (u *UserServices) CreateResume(data model.Resume, secretKey string, c *fibe
 }
 
 func (u *UserServices) UpdateResume(data model.Resume, id, secretKey string, c *fiber.Ctx) (*model.Resume, error) {
-	var user model.User
 	cookie := c.Cookies("ipwCookie")
 	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
@@ -173,16 +177,11 @@ func (u *UserServices) UpdateResume(data model.Resume, id, secretKey string, c *
 		return nil, errors.New("unauthenticated")
 	}
 	claims, ok := token.Claims.(*jwt.RegisteredClaims)
-	getUser, err := u.repo.GetUser(user, claims)
 	if !ok {
 		return nil, fmt.Errorf("неверный формат токена")
 	}
 	if claims.Valid() != nil {
 		return nil, fmt.Errorf("невалидный токен: %v", claims.Valid())
-	}
-	userIDStr := strconv.Itoa(getUser.ID)
-	if claims.Issuer != userIDStr {
-		return nil, errors.New("вы не можете создавать резюме для других пользователей")
 	}
 	resume := &model.Resume{
 		UserEmail:   data.UserEmail,
@@ -280,14 +279,39 @@ func (u *UserServices) CreateCompany(company model.Company, secretKey string, c 
 	if claims.Valid() != nil {
 		return nil, fmt.Errorf("невалидный токен: %v", claims.Valid())
 	}
+	file, err := c.FormFile("photo")
+	if err != nil {
+		return nil, err
+	}
+	fileContent, err := file.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer fileContent.Close()
+	// Загрузите изображение и сжатие его перед сохранением
+	img, _, err := image.Decode(fileContent)
+	if err != nil {
+		return nil, err
+	}
+	// Сжатие изображения до заданных размеров
+	img = resize.Resize(800, 600, img, resize.Lanczos3)
+	// Преобразуйте изображение в формат JPEG и получите сжатые данные
+	var buf bytes.Buffer
+	err = jpeg.Encode(&buf, img, nil)
+	if err != nil {
+		return nil, err
+	}
 	data := &model.Company{
 		UserID:      getUser.ID,
+		Photo:       buf.Bytes(),
 		Name:        company.Name,
 		Tag:         company.Tag,
 		Email:       company.Email,
 		Phone:       company.Phone,
 		Location:    company.Location,
 		Description: company.Description,
+		CompanySize: company.CompanySize,
+		WebSite:     company.WebSite,
 	}
 	if err != nil {
 		return nil, err
@@ -297,6 +321,40 @@ func (u *UserServices) CreateCompany(company model.Company, secretKey string, c 
 		return nil, err
 	}
 	return createCompany, nil
+}
+
+func (u *UserServices) UpdateCompanyData(company model.Company, secretKey string, c *fiber.Ctx) (*model.Company, error) {
+	var user model.User
+	cookie := c.Cookies("ipwCookie")
+	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secretKey), nil
+	})
+	if err != nil {
+		c.Status(fiber.StatusUnauthorized)
+		return nil, errors.New("unauthenticated")
+	}
+	claims, ok := token.Claims.(*jwt.RegisteredClaims)
+	if !ok {
+		return nil, fmt.Errorf("неверный формат токена")
+	}
+	if claims.Valid() != nil {
+		return nil, fmt.Errorf("невалидный токен: %v", claims.Valid())
+	}
+	usrID, _ := strconv.Atoi(claims.Issuer)
+	getUser, err := u.repo.GetUser(user, claims)
+	if err != nil {
+		return nil, err
+	}
+	updateCompany := &model.Company{
+		ID:     getUser.Company.ID,
+		UserID: usrID,
+		Name:   company.Name,
+	}
+	// updateCompanyData, err := u.repo.UpdateCompanyData(updateCompany, user, claims)
+	// if err != nil {
+	// return nil, err
+	// }
+	return updateCompany, nil
 }
 
 func (u *UserServices) UpdateRoleByUserID(userID string, roleID int) error {
@@ -312,8 +370,20 @@ func (u *UserServices) GetCompanyByID(id string) (*model.Company, error) {
 	return getCompanyByID, nil
 }
 
-func (u *UserServices) CreateVacancy(data model.Vacancy) (*model.Vacancy, error) {
-	createVacancy, err := u.repo.CreateVacancy(data)
+func (u *UserServices) CreateVacancy(data model.Vacancy, secretKey string, c *fiber.Ctx) (*model.Vacancy, error) {
+	cookie := c.Cookies("ipwCookie")
+	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secretKey), nil
+	})
+	if err != nil {
+		c.Status(fiber.StatusUnauthorized)
+		return nil, errors.New("unauthenticated")
+	}
+	claims, ok := token.Claims.(*jwt.RegisteredClaims)
+	if !ok {
+		return nil, fmt.Errorf("неверный формат токена")
+	}
+	createVacancy, err := u.repo.CreateVacancy(data, claims)
 	if err != nil {
 		return nil, err
 	}

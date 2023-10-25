@@ -2,11 +2,12 @@ package repository
 
 import (
 	"errors"
-	"github.com/golang-jwt/jwt/v4"
-	"gorm.io/gorm"
 	"ipw-clean-arch/internal/model"
 	"log"
 	"strconv"
+
+	"github.com/golang-jwt/jwt/v4"
+	"gorm.io/gorm"
 )
 
 type UserPostgres struct {
@@ -88,15 +89,33 @@ func (u *UserPostgres) UpdateResume(data *model.Resume, id string) (*model.Resum
 		}
 		return nil, err
 	}
-	resume.UserEmail = data.UserEmail
-	resume.UserName = data.UserName
-	resume.UserTag = data.UserTag
-	resume.Direction = data.Direction
-	resume.Level = data.Level
-	resume.Salary = data.Salary
-	resume.Location = data.Location
-	resume.Status = data.Status
-	resume.Description = data.Description
+	if data.UserEmail != "" {
+		resume.UserEmail = data.UserEmail
+	}
+	if data.UserName != "" {
+		resume.UserName = data.UserName
+	}
+	if data.UserTag != "" {
+		resume.UserTag = data.UserTag
+	}
+	if data.Direction != "" {
+		resume.Direction = data.Direction
+	}
+	if data.Level != "" {
+		resume.Level = data.Level
+	}
+	if data.Salary != "" {
+		resume.Salary = data.Salary
+	}
+	if data.Location != "" {
+		resume.Location = data.Location
+	}
+	if data.Status != "" {
+		resume.Status = data.Status
+	}
+	if data.Description != "" {
+		resume.Description = data.Description
+	}
 	if err := u.db.Save(&resume).Error; err != nil {
 		return nil, err
 	}
@@ -166,6 +185,27 @@ func (u *UserPostgres) CreateCompany(company *model.Company, user *model.User, c
 	return company, nil
 }
 
+func (u *UserPostgres) UpdateCompanyData(company *model.Company, user model.User, claims *jwt.RegisteredClaims) (*model.Company, error) {
+	// if err := u.db.Preload("Role").Where("id = ?", claims.Issuer).First(&user).Error; err != nil {
+	// 	return nil, err
+	// }
+	// if err := u.db.Model(&model.Company{}).Where("id = ?", company.ID).First(&company).Error; err != nil {
+	// 	return nil, err
+	// }
+	// // if company.UserID != 0 {
+	// // 	data.UserID = company.UserID
+	// // }
+	// // if company.Name != "" {
+	// // 	data.Name = company.Name
+	// // }
+	// // if err := u.db.Save(&data).Error; err != nil {
+	// // 	return nil, err
+	// // }
+	// return company, nil
+	// TODO
+	panic("implement me")
+}
+
 func (u *UserPostgres) GetCompanyByID(id string) (*model.Company, error) {
 	var company model.Company
 	if err := u.db.First(&company, id).Error; err != nil {
@@ -188,17 +228,22 @@ func (u *UserPostgres) GetCompanyByID(id string) (*model.Company, error) {
 //	return &company, nil
 //}
 
-func (u *UserPostgres) CreateVacancy(data model.Vacancy) (*model.Vacancy, error) {
+func (u *UserPostgres) CreateVacancy(data model.Vacancy, claims *jwt.RegisteredClaims) (*model.Vacancy, error) {
+	var user model.User
+	if err := u.db.Preload("Company").Preload("Role").Where("id = ?", claims.Issuer).First(&user).Error; err != nil {
+		return nil, err
+	}
 	vacancy := &model.Vacancy{
-		CompanyID:   data.CompanyID,
+		CompanyID:   user.Company.ID,
 		CompanyName: data.CompanyName,
-		CompanyTag:  data.CompanyTag,
 		Direction:   data.Direction,
 		Level:       data.Level,
 		Location:    data.Location,
 		WorkTime:    data.WorkTime,
 		Description: data.Description,
 		Skills:      data.Skills,
+		Salary:      data.Salary,
+		Experience:  data.Experience,
 	}
 	if err := u.db.Create(vacancy).Error; err != nil {
 		return nil, err

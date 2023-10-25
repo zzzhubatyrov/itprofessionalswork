@@ -1,9 +1,10 @@
 package service
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"ipw-clean-arch/internal/model"
 	"ipw-clean-arch/internal/repository"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 // Authorization TODO add Update method, CheckEmail, CheckUser, VerifyEmail
@@ -41,12 +42,13 @@ type CompanyHandler interface {
 	UpdateRoleByUserID(userID string, roleID int) error
 	//CreateCompany(data model.Company, secretKey string, c *fiber.Ctx) (*model.Company, error)
 	CreateCompany(data model.Company, secretKey string, c *fiber.Ctx) (*model.Company, error)
+	UpdateCompanyData(company model.Company, secretKey string, c *fiber.Ctx) (*model.Company, error)
 	GetCompanyByID(id string) (*model.Company, error)
 	VacancyHandler
 }
 
 type VacancyHandler interface {
-	CreateVacancy(data model.Vacancy) (*model.Vacancy, error)
+	CreateVacancy(data model.Vacancy, secretKey string, c *fiber.Ctx) (*model.Vacancy, error)
 	GetAllVacancy(data []model.Vacancy) ([]model.Vacancy, error)
 	GetVacancyByID(id string) (*model.Vacancy, error)
 	UpdateVacancy()

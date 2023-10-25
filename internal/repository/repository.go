@@ -1,9 +1,10 @@
 package repository
 
 import (
+	"ipw-clean-arch/internal/model"
+
 	"github.com/golang-jwt/jwt/v4"
 	"gorm.io/gorm"
-	"ipw-clean-arch/internal/model"
 )
 
 // Authorization TODO add Update method, CheckEmail, CheckUser, VerifyEmail
@@ -40,12 +41,13 @@ type RoleHandler interface {
 type CompanyHandler interface {
 	UpdateRoleByUserID(userID string, roleID int) error
 	CreateCompany(company *model.Company, user *model.User, claims *jwt.RegisteredClaims) (*model.Company, error)
+	UpdateCompanyData(company *model.Company, user model.User, claims *jwt.RegisteredClaims) (*model.Company, error)
 	GetCompanyByID(id string) (*model.Company, error)
 	VacancyHandler
 }
 
 type VacancyHandler interface {
-	CreateVacancy(data model.Vacancy) (*model.Vacancy, error)
+	CreateVacancy(data model.Vacancy, claims *jwt.RegisteredClaims) (*model.Vacancy, error)
 	GetAllVacancy(data []model.Vacancy) ([]model.Vacancy, error)
 	GetVacancyByID(id string) (*model.Vacancy, error)
 	UpdateVacancy()

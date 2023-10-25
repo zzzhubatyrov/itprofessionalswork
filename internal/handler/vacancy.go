@@ -10,7 +10,7 @@ func (h *Handler) createVacancy(c *fiber.Ctx) error {
 	if err := c.BodyParser(&data); err != nil {
 		return err
 	}
-	createVacancy, err := h.services.CreateVacancy(data)
+	createVacancy, err := h.services.CreateVacancy(data, secretKey, c)
 	if err != nil {
 		return err
 	}
