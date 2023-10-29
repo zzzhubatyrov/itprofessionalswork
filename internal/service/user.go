@@ -135,10 +135,9 @@ func (u *UserServices) CreateResume(data model.Resume, secretKey string, c *fibe
 		return nil, errors.New("вы не можете создавать резюме для других пользователей")
 	}
 	resume := &model.Resume{
-		UserID:    claims.Issuer,
-		UserEmail: getUser.Email,
-		UserName:  getUser.Name,
-		//UserAge:     getUser.Age,
+		UserID:      claims.Issuer,
+		UserEmail:   getUser.Email,
+		UserName:    getUser.Name,
 		UserGender:  getUser.Gender,
 		UserTag:     getUser.Tag,
 		Direction:   data.Direction,
@@ -149,17 +148,6 @@ func (u *UserServices) CreateResume(data model.Resume, secretKey string, c *fibe
 		Description: data.Description,
 		Skills:      data.Skills,
 	}
-	//UserID:      claims.Issuer,
-	//UserEmail:   getUser.Email,
-	//UserName:    getUser.Name,
-	//UserTag:     getUser.Tag,
-	//Direction:   data.Direction,
-	//Level:       data.Level,
-	//Salary:      data.Salary,
-	//Location:    data.Location,
-	//Status:      data.Status,
-	//Description: data.Description,
-	//Skills:      data.Skills,
 	createResume, err := u.repo.CreateResume(resume)
 	if err != nil {
 		return nil, err
@@ -288,14 +276,11 @@ func (u *UserServices) CreateCompany(company model.Company, secretKey string, c 
 		return nil, err
 	}
 	defer fileContent.Close()
-	// Загрузите изображение и сжатие его перед сохранением
 	img, _, err := image.Decode(fileContent)
 	if err != nil {
 		return nil, err
 	}
-	// Сжатие изображения до заданных размеров
 	img = resize.Resize(800, 600, img, resize.Lanczos3)
-	// Преобразуйте изображение в формат JPEG и получите сжатые данные
 	var buf bytes.Buffer
 	err = jpeg.Encode(&buf, img, nil)
 	if err != nil {
