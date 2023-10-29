@@ -234,16 +234,17 @@ func (u *UserPostgres) CreateVacancy(data model.Vacancy, claims *jwt.RegisteredC
 		return nil, err
 	}
 	vacancy := &model.Vacancy{
-		CompanyID:   user.Company.ID,
-		CompanyName: data.CompanyName,
-		Direction:   data.Direction,
-		Level:       data.Level,
-		Location:    data.Location,
-		WorkTime:    data.WorkTime,
-		Description: data.Description,
-		Skills:      data.Skills,
-		Salary:      data.Salary,
-		Experience:  data.Experience,
+		CompanyID:    user.Company.ID,
+		CompanyPhoto: user.Company.Photo,
+		CompanyName:  user.Company.Name,
+		Direction:    data.Direction,
+		Level:        data.Level,
+		Location:     data.Location,
+		WorkTime:     data.WorkTime,
+		Description:  data.Description,
+		Skills:       data.Skills,
+		Salary:       data.Salary,
+		Experience:   data.Experience,
 	}
 	if err := u.db.Create(vacancy).Error; err != nil {
 		return nil, err

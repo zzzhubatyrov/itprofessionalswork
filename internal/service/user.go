@@ -26,7 +26,7 @@ func NewUserService(repo repository.UserHandler) *UserServices {
 }
 
 func (u *UserServices) GetUser(data model.User, secretKey string, c *fiber.Ctx) (*model.User, error) {
-	cookie := c.Cookies("ipwCookie")
+	cookie := c.Cookies("ipw")
 	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
 	})
@@ -46,7 +46,7 @@ func (u *UserServices) GetUser(data model.User, secretKey string, c *fiber.Ctx) 
 }
 
 func (u *UserServices) UpdateUser(data model.User, secretKey string, c *fiber.Ctx) (*model.User, error) {
-	cookie := c.Cookies("ipwCookie")
+	cookie := c.Cookies("ipw")
 	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
 	})
@@ -69,7 +69,7 @@ func (u *UserServices) UpdateUser(data model.User, secretKey string, c *fiber.Ct
 }
 
 func (u *UserServices) UploadPhoto(secretKey string, c *fiber.Ctx) (*model.User, error) {
-	cookie := c.Cookies("ipwCookie")
+	cookie := c.Cookies("ipw")
 	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
 	})
@@ -114,7 +114,7 @@ func (u *UserServices) GetAllUsers(data []model.User) ([]model.User, error) {
 
 func (u *UserServices) CreateResume(data model.Resume, secretKey string, c *fiber.Ctx) (*model.Resume, error) {
 	var user model.User
-	cookie := c.Cookies("ipwCookie")
+	cookie := c.Cookies("ipw")
 	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
 	})
@@ -168,7 +168,7 @@ func (u *UserServices) CreateResume(data model.Resume, secretKey string, c *fibe
 }
 
 func (u *UserServices) UpdateResume(data model.Resume, id, secretKey string, c *fiber.Ctx) (*model.Resume, error) {
-	cookie := c.Cookies("ipwCookie")
+	cookie := c.Cookies("ipw")
 	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
 	})
@@ -229,7 +229,7 @@ func (u *UserServices) DeleteResume(id string) error {
 
 func (u *UserServices) CreateResponse(data model.Vacancy, secretKey string, c *fiber.Ctx) (*model.Response, error) {
 	var user model.User
-	cookie := c.Cookies("ipwCookie")
+	cookie := c.Cookies("ipw")
 	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
 	})
@@ -263,7 +263,7 @@ func (u *UserServices) CreateResponse(data model.Vacancy, secretKey string, c *f
 
 func (u *UserServices) CreateCompany(company model.Company, secretKey string, c *fiber.Ctx) (*model.Company, error) {
 	var user model.User
-	cookie := c.Cookies("ipwCookie")
+	cookie := c.Cookies("ipw")
 	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
 	})
@@ -325,7 +325,7 @@ func (u *UserServices) CreateCompany(company model.Company, secretKey string, c 
 
 func (u *UserServices) UpdateCompanyData(company model.Company, secretKey string, c *fiber.Ctx) (*model.Company, error) {
 	var user model.User
-	cookie := c.Cookies("ipwCookie")
+	cookie := c.Cookies("ipw")
 	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
 	})
@@ -371,7 +371,7 @@ func (u *UserServices) GetCompanyByID(id string) (*model.Company, error) {
 }
 
 func (u *UserServices) CreateVacancy(data model.Vacancy, secretKey string, c *fiber.Ctx) (*model.Vacancy, error) {
-	cookie := c.Cookies("ipwCookie")
+	cookie := c.Cookies("ipw")
 	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
 	})

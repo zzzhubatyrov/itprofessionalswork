@@ -32,16 +32,20 @@ func main() {
 		_ = fmt.Errorf("failed to initialize db: %s", err.Error())
 	}
 
+	//models := []interface{}{
+	//	&model.User{},
+	//	&model.Company{},
+	//	&model.Vacancy{},
+	//	&model.Response{},
+	//	&model.Resume{},
+	//	//&model.Role{},
+	//}
 	models := []interface{}{
-		// &model.User{},
 		&model.Company{},
-		// &model.Vacancy{},
-		// &model.Response{},
-		// &model.Resume{},
-		//&model.Role{},
+		&model.Vacancy{},
 	}
-	// migrator := db.Migrator()
-	// _ = migrator.DropTable(models...)
+	migrator := db.Migrator()
+	_ = migrator.DropTable(models...)
 	_ = db.AutoMigrate(models...)
 	//db.Create(&model.Role{Name: "Администратор"})
 	//db.Create(&model.Role{Name: "Модератор"})
@@ -53,7 +57,7 @@ func main() {
 	handlers := handler.NewHandler(services)
 	app := fiber.New()
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:3000",
+		AllowOrigins:     "http://localhost:3000, https://itprofessionalswork.ru",
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowCredentials: true,
 	}))

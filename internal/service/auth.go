@@ -61,13 +61,13 @@ func (u *AuthServices) Login(data model.User, secretKey string, c *fiber.Ctx) er
 		})
 	}
 	cookie := fiber.Cookie{
-		Name:     "ipwCookie",
+		Name:     "ipw",
 		Value:    token,
 		Expires:  time.Now().Add(time.Hour * 24),
 		HTTPOnly: false,
-		Secure:   false,
-		//SameSite: "Lax",
-		//Domain: "localhost",
+		Secure:   true,
+		SameSite: "Lax",
+		Domain:   "itprofessionalswork.ru",
 	}
 	c.Cookie(&cookie)
 	if cookie.Value != "" {
@@ -78,16 +78,15 @@ func (u *AuthServices) Login(data model.User, secretKey string, c *fiber.Ctx) er
 
 func (u *AuthServices) Logout(c *fiber.Ctx) error {
 	cookie := fiber.Cookie{
-		Name:     "ipwCookie",
+		Name:     "ipw",
 		Value:    "",
 		Expires:  time.Now().Add(-time.Hour),
 		HTTPOnly: false,
-		Secure:   false,
+		Secure:   true,
 		SameSite: "Lax",
-		Domain:   "localhost",
+		Domain:   "itprofessionalswork.ru",
 	}
 	c.Cookie(&cookie)
-	return c.JSON(fiber.Map{
-		"message": "success logout",
-	})
+	c.Set("Authorization", "Bearer "+cookie.Value)
+	return nil
 }

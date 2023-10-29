@@ -1,9 +1,9 @@
 db:
   host: localhost
-  username: postgres
-  password: tigserf
-  dbname: test
+  username: zen
+  password: p0gertW1ce
+  dbname: ipwdb
   port: "5432"
   sslmode: disable
 
-SecretKey: "ipw-test-key"
+SecretKey: "7823c5942d40166bc694fea147654cb66fa1e76256b38c7c94521bd2754eead4"
