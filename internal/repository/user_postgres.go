@@ -214,20 +214,6 @@ func (u *UserPostgres) GetCompanyByID(id string) (*model.Company, error) {
 	return &company, nil
 }
 
-//
-//func (u *UserPostgres) UploadPhotoCompany(data model.Company, claims *jwt.RegisteredClaims, photoData []byte) (*model.Company, error) {
-//	var company model.Company
-//	var user model.User
-//	if err := u.db.Preload("Role").Where("id = ?", claims.Issuer).First(&user).Error; err != nil {
-//		return nil, err
-//	}
-//	company.Photo = photoData
-//	if err := u.db.Save(&company).Error; err != nil {
-//		return nil, err
-//	}
-//	return &company, nil
-//}
-
 func (u *UserPostgres) CreateVacancy(data model.Vacancy, claims *jwt.RegisteredClaims) (*model.Vacancy, error) {
 	var user model.User
 	if err := u.db.Preload("Company").Preload("Role").Where("id = ?", claims.Issuer).First(&user).Error; err != nil {
