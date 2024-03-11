@@ -1,11 +1,10 @@
 package handler
 
 import (
-	"ipw-clean-arch/internal/service"
-
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
+	"ipw-clean-arch/internal/service"
 )
 
 type Handler struct {
@@ -51,15 +50,16 @@ func (h *Handler) InitRoute(app *fiber.App) fiber.Handler {
 
 	company := app.Group("/company")
 	companyV1 := company.Group("/v1")
+	companyV1.Get("/companies", h.getAllCompanies)
 	companyV1.Get("/:id", h.getCompanyByID)
 	companyV1.Put("update", h.updateCompanyData)
 
 	//companyV1.Get("/all-vacancies")
 
-	// Add middleware on check user role
-	//admin := app.Group("/admin-panel")
+	//admin := app.Group("/admin")
 	//adminV1 := admin.Group("/v1")
-	//adminV1.Get("/roles")
+	//adminV1.Put("/update-role/:id", h.updateRoleByID)
+
 	role := app.Group("/role")
 	roleV1 := role.Group("/v1")
 	roleV1.Get("/roles", h.getAllRoles)
@@ -73,6 +73,28 @@ func (h *Handler) InitRoute(app *fiber.App) fiber.Handler {
 	app.Get("/message", websocket.New(h.sendMessage))
 	app.Post("/send-notify", h.sendNotificationHandler)
 	app.Get("/read-notifications", h.readNotificationsHandler)
+	//app.Get("/read-notifications", websocket.New(func(conn *websocket.Conn) {
+	//	rabbitConn, err := service.ConnectRabbitMQ()
+	//	if err != nil {
+	//		log.Println("Failed to connect to RabbitMQ:", err)
+	//		return
+	//	}
+	//	defer rabbitConn.Close()
+	//	msgs, err := service.ConsumeMessages(rabbitConn)
+	//	if err != nil {
+	//		log.Println("Failed to consume messages", err)
+	//		return
+	//	}
+	//	for msg := range msgs {
+	//		notification := string(msg.Body)
+	//		// Отправка уведомления через WebSocket
+	//		if err := conn.WriteJSON(notification); err != nil {
+	//			log.Println("Error writing JSON to WebSocket:", err)
+	//			return
+	//		}
+	//	}
+	//}))
+	//app.Get("/ws", websocket.New(h.WebSocketHandler))
 
 	return nil
 }

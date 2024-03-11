@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"github.com/streadway/amqp"
 )
 
@@ -62,8 +61,8 @@ func ConsumeMessages(conn *amqp.Connection) (<-chan amqp.Delivery, error) {
 	if err != nil {
 		return nil, err
 	}
-	for msg := range msgs {
-		fmt.Println(string(msg.Body))
-	}
+	//for msg := range msgs {
+	//	fmt.Println(string(msg.Body))
+	//}
 	return msgs, nil
 }

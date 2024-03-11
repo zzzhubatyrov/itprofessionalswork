@@ -7,3 +7,8 @@ db:
   sslmode: disable
 
 SecretKey: "7823c5942d40166bc694fea147654cb66fa1e76256b38c7c94521bd2754eead4"
+
+DEV_URL: "localhost:5000"
+DEV_DOMAIN: "localhost"
+PROD_URL: "https://itprofessionalswork.ru"
+PROD_DOMAIN: "itprofessionalswork.ru"

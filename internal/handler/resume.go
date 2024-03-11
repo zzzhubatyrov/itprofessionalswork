@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/gofiber/fiber/v2"
 	"ipw-clean-arch/internal/model"
+	"strconv"
 )
 
 func (h *Handler) createResume(c *fiber.Ctx) error {
@@ -32,7 +33,11 @@ func (h *Handler) updateResume(c *fiber.Ctx) error {
 
 func (h *Handler) getResumeByID(c *fiber.Ctx) error {
 	id := c.Params("id")
-	getResumeByID, err := h.services.GetResumeByID(id)
+	usrID, err := strconv.Atoi(id)
+	if err != nil {
+		panic(err)
+	}
+	getResumeByID, err := h.services.GetResumeByID(usrID)
 	if err != nil {
 		return err
 	}

@@ -9,7 +9,7 @@ paths:
 info:
   title: IPW API
   description: This Swagger for IPW api
-  version: 2.0.0
+  version: 1.0.0
   contact:
     name: Rodion Zhubatyrov
     email: whqhub@bk.ru

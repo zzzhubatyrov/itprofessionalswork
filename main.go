@@ -6,7 +6,6 @@ import (
 	"ipw-clean-arch/internal/model"
 	"ipw-clean-arch/internal/repository"
 	"ipw-clean-arch/internal/service"
-	_ "ipw-clean-arch/internal/service"
 	"time"
 
 	"github.com/gofiber/contrib/swagger"
@@ -32,27 +31,25 @@ func main() {
 		_ = fmt.Errorf("failed to initialize db: %s", err.Error())
 	}
 
-	//models := []interface{}{
-	//	&model.User{},
-	//	&model.Company{},
-	//	&model.Vacancy{},
-	//	&model.Response{},
-	//	&model.Resume{},
-	//	//&model.Role{},
-	//}
+	client := repository.NewRedisDB()
+
 	models := []interface{}{
+		&model.User{},
 		&model.Company{},
 		&model.Vacancy{},
+		//&model.Response{},
+		&model.Resume{},
+		//&model.Role{},
 	}
-	migrator := db.Migrator()
-	_ = migrator.DropTable(models...)
+	//migrator := db.Migrator()
+	//_ = migrator.DropTable(models...)
 	_ = db.AutoMigrate(models...)
 	//db.Create(&model.Role{Name: "Администратор"})
 	//db.Create(&model.Role{Name: "Модератор"})
 	//db.Create(&model.Role{Name: "HR"})
 	//db.Create(&model.Role{Name: "Пользователь"})
 
-	repos := repository.NewRepository(db)
+	repos := repository.NewRepository(db, client)
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
 	app := fiber.New()

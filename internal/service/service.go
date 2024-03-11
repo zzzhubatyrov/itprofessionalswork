@@ -28,7 +28,7 @@ type ResumeHandler interface {
 	CreateResume(data model.Resume, secretKey string, c *fiber.Ctx) (*model.Resume, error)
 	UpdateResume(data model.Resume, id, secretKey string, c *fiber.Ctx) (*model.Resume, error)
 	GetResume()
-	GetResumeByID(id string) (*model.Resume, error)
+	GetResumeByID(id int) (*model.Resume, error)
 	GetAllResumes(data []model.Resume) ([]model.Resume, error)
 	DeleteResume(id string) error
 }
@@ -40,9 +40,10 @@ type RoleHandler interface {
 
 type CompanyHandler interface {
 	UpdateRoleByUserID(userID string, roleID int) error
-	//CreateCompany(data model.Company, secretKey string, c *fiber.Ctx) (*model.Company, error)
 	CreateCompany(data model.Company, secretKey string, c *fiber.Ctx) (*model.Company, error)
 	UpdateCompanyData(company model.Company, secretKey string, c *fiber.Ctx) (*model.Company, error)
+	//UpdateCompanyData(company model.Company) (*model.Company, error)
+	GetAllCompanies(company []model.Company) ([]model.Company, error)
 	GetCompanyByID(id string) (*model.Company, error)
 	VacancyHandler
 }
@@ -55,10 +56,15 @@ type VacancyHandler interface {
 	DeleteVacancy()
 }
 
+type AdminHandler interface {
+	UpdateUserRoleByID(id int) (*model.User, error)
+}
+
 type Service struct {
 	Authorization
 	UserHandler
 	RoleHandler
+	AdminHandler
 }
 
 func NewService(repos *repository.Repository) *Service {
@@ -66,5 +72,6 @@ func NewService(repos *repository.Repository) *Service {
 		Authorization: NewAuthService(repos.Authorization),
 		UserHandler:   NewUserService(repos.UserHandler),
 		RoleHandler:   NewRoleService(repos.RoleHandler),
+		AdminHandler:  NewAdminService(repos.AdminHandler),
 	}
 }

@@ -4,6 +4,7 @@ type Vacancy struct {
 	ID           int    `json:"id" gorm:"primaryKey"`
 	CompanyID    int    `json:"companyID"`
 	CompanyPhoto []byte `json:"companyPhoto"`
+	CompanyTag   string `json:"companyTag"`
 	CompanyName  string `json:"companyName"`
 	Direction    string `json:"direction"`
 	Level        string `json:"level"`

@@ -36,6 +36,7 @@ func (h *Handler) sendMessage(conn *websocket.Conn) {
 	go chatRoom.Run()
 
 	chatRoom.register <- conn
+	log.Println("register:", chatRoom.ChatID)
 	defer func() {
 		chatRoom.unregister <- conn
 		conn.Close()

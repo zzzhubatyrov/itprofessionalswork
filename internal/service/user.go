@@ -4,17 +4,17 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v4"
+	"github.com/nfnt/resize"
 	"image"
 	"image/jpeg"
 	"io/ioutil"
 	"ipw-clean-arch/internal/model"
 	"ipw-clean-arch/internal/repository"
+	"ipw-clean-arch/internal/utils"
 	"log"
 	"strconv"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v4"
-	"github.com/nfnt/resize"
 )
 
 type UserServices struct {
@@ -27,9 +27,7 @@ func NewUserService(repo repository.UserHandler) *UserServices {
 
 func (u *UserServices) GetUser(data model.User, secretKey string, c *fiber.Ctx) (*model.User, error) {
 	cookie := c.Cookies("ipw")
-	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secretKey), nil
-	})
+	token, err := utils.ParseToken(cookie, secretKey)
 	if err != nil {
 		c.Status(fiber.StatusUnauthorized)
 		return nil, errors.New("unauthenticated")
@@ -37,7 +35,10 @@ func (u *UserServices) GetUser(data model.User, secretKey string, c *fiber.Ctx) 
 	if !token.Valid {
 		return nil, errors.New("недействительный JWT токен")
 	}
-	claims := token.Claims.(*jwt.RegisteredClaims)
+	claims, err := utils.GetToken(token)
+	if err != nil {
+		return nil, fmt.Errorf("неверный формат токена")
+	}
 	user, err := u.repo.GetUser(data, claims)
 	if err != nil {
 		return nil, err
@@ -47,9 +48,7 @@ func (u *UserServices) GetUser(data model.User, secretKey string, c *fiber.Ctx) 
 
 func (u *UserServices) UpdateUser(data model.User, secretKey string, c *fiber.Ctx) (*model.User, error) {
 	cookie := c.Cookies("ipw")
-	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secretKey), nil
-	})
+	token, err := utils.ParseToken(cookie, secretKey)
 	if err != nil {
 		c.Status(fiber.StatusUnauthorized)
 		return nil, errors.New("unauthenticated")
@@ -70,9 +69,7 @@ func (u *UserServices) UpdateUser(data model.User, secretKey string, c *fiber.Ct
 
 func (u *UserServices) UploadPhoto(secretKey string, c *fiber.Ctx) (*model.User, error) {
 	cookie := c.Cookies("ipw")
-	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secretKey), nil
-	})
+	token, err := utils.ParseToken(cookie, secretKey)
 	if err != nil {
 		c.Status(fiber.StatusUnauthorized)
 		return nil, errors.New("unauthenticated")
@@ -104,6 +101,7 @@ func (u *UserServices) UploadPhoto(secretKey string, c *fiber.Ctx) (*model.User,
 	return uploadPhoto, nil
 }
 
+// GetAllUsers TODO Add check for token
 func (u *UserServices) GetAllUsers(data []model.User) ([]model.User, error) {
 	getAllUsers, err := u.repo.GetAllUsers(data)
 	if err != nil {
@@ -115,12 +113,13 @@ func (u *UserServices) GetAllUsers(data []model.User) ([]model.User, error) {
 func (u *UserServices) CreateResume(data model.Resume, secretKey string, c *fiber.Ctx) (*model.Resume, error) {
 	var user model.User
 	cookie := c.Cookies("ipw")
-	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secretKey), nil
-	})
+	token, err := utils.ParseToken(cookie, secretKey)
 	if err != nil {
 		c.Status(fiber.StatusUnauthorized)
 		return nil, errors.New("unauthenticated")
+	}
+	if !token.Valid {
+		return nil, errors.New("недействительный JWT токен")
 	}
 	claims, ok := token.Claims.(*jwt.RegisteredClaims)
 	getUser, err := u.repo.GetUser(user, claims)
@@ -130,16 +129,12 @@ func (u *UserServices) CreateResume(data model.Resume, secretKey string, c *fibe
 	if claims.Valid() != nil {
 		return nil, fmt.Errorf("невалидный токен: %v", claims.Valid())
 	}
-	userIDStr := strconv.Itoa(getUser.ID)
-	if claims.Issuer != userIDStr {
-		return nil, errors.New("вы не можете создавать резюме для других пользователей")
-	}
 	resume := &model.Resume{
-		UserID:      claims.Issuer,
-		UserEmail:   getUser.Email,
-		UserName:    getUser.Name,
-		UserGender:  getUser.Gender,
-		UserTag:     getUser.Tag,
+		UserID:      getUser.ID,
+		Email:       getUser.Email,
+		Name:        getUser.Name,
+		Gender:      getUser.Gender,
+		Tag:         getUser.Tag,
 		Direction:   data.Direction,
 		Level:       data.Level,
 		Salary:      data.Salary,
@@ -157,12 +152,13 @@ func (u *UserServices) CreateResume(data model.Resume, secretKey string, c *fibe
 
 func (u *UserServices) UpdateResume(data model.Resume, id, secretKey string, c *fiber.Ctx) (*model.Resume, error) {
 	cookie := c.Cookies("ipw")
-	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secretKey), nil
-	})
+	token, err := utils.ParseToken(cookie, secretKey)
 	if err != nil {
 		c.Status(fiber.StatusUnauthorized)
 		return nil, errors.New("unauthenticated")
+	}
+	if !token.Valid {
+		return nil, errors.New("недействительный JWT токен")
 	}
 	claims, ok := token.Claims.(*jwt.RegisteredClaims)
 	if !ok {
@@ -172,9 +168,9 @@ func (u *UserServices) UpdateResume(data model.Resume, id, secretKey string, c *
 		return nil, fmt.Errorf("невалидный токен: %v", claims.Valid())
 	}
 	resume := &model.Resume{
-		UserEmail:   data.UserEmail,
-		UserName:    data.UserName,
-		UserTag:     data.UserTag,
+		Email:       data.Email,
+		Name:        data.Name,
+		Tag:         data.Tag,
 		Direction:   data.Direction,
 		Level:       data.Level,
 		Salary:      data.Salary,
@@ -195,7 +191,7 @@ func (u *UserServices) GetResume() {
 	panic("implement me")
 }
 
-func (u *UserServices) GetResumeByID(id string) (*model.Resume, error) {
+func (u *UserServices) GetResumeByID(id int) (*model.Resume, error) {
 	getResumeByID, err := u.repo.GetResumeByID(id)
 	if err != nil {
 		return nil, err
@@ -218,12 +214,13 @@ func (u *UserServices) DeleteResume(id string) error {
 func (u *UserServices) CreateResponse(data model.Vacancy, secretKey string, c *fiber.Ctx) (*model.Response, error) {
 	var user model.User
 	cookie := c.Cookies("ipw")
-	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secretKey), nil
-	})
+	token, err := utils.ParseToken(cookie, secretKey)
 	if err != nil {
 		c.Status(fiber.StatusUnauthorized)
 		return nil, errors.New("unauthenticated")
+	}
+	if !token.Valid {
+		return nil, errors.New("недействительный JWT токен")
 	}
 	claims, ok := token.Claims.(*jwt.RegisteredClaims)
 	getUser, err := u.repo.GetUser(user, claims)
@@ -252,12 +249,13 @@ func (u *UserServices) CreateResponse(data model.Vacancy, secretKey string, c *f
 func (u *UserServices) CreateCompany(company model.Company, secretKey string, c *fiber.Ctx) (*model.Company, error) {
 	var user model.User
 	cookie := c.Cookies("ipw")
-	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secretKey), nil
-	})
+	token, err := utils.ParseToken(cookie, secretKey)
 	if err != nil {
 		c.Status(fiber.StatusUnauthorized)
 		return nil, errors.New("unauthenticated")
+	}
+	if !token.Valid {
+		return nil, errors.New("недействительный JWT токен")
 	}
 	claims, ok := token.Claims.(*jwt.RegisteredClaims)
 	getUser, err := u.repo.GetUser(user, claims)
@@ -286,8 +284,9 @@ func (u *UserServices) CreateCompany(company model.Company, secretKey string, c 
 	if err != nil {
 		return nil, err
 	}
+	usrID, _ := strconv.Atoi(claims.Issuer)
 	data := &model.Company{
-		UserID:      getUser.ID,
+		UserID:      usrID,
 		Photo:       buf.Bytes(),
 		Name:        company.Name,
 		Tag:         company.Tag,
@@ -311,35 +310,55 @@ func (u *UserServices) CreateCompany(company model.Company, secretKey string, c 
 func (u *UserServices) UpdateCompanyData(company model.Company, secretKey string, c *fiber.Ctx) (*model.Company, error) {
 	var user model.User
 	cookie := c.Cookies("ipw")
-	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secretKey), nil
-	})
+	token, err := utils.ParseToken(cookie, secretKey)
 	if err != nil {
 		c.Status(fiber.StatusUnauthorized)
 		return nil, errors.New("unauthenticated")
+	}
+	if !token.Valid {
+		return nil, errors.New("недействительный JWT токен")
 	}
 	claims, ok := token.Claims.(*jwt.RegisteredClaims)
 	if !ok {
 		return nil, fmt.Errorf("неверный формат токена")
 	}
-	if claims.Valid() != nil {
-		return nil, fmt.Errorf("невалидный токен: %v", claims.Valid())
+	getUser, err := u.repo.GetUser(user, claims)
+	if err != nil {
+		return nil, errors.New("у вас нет компании")
 	}
 	usrID, _ := strconv.Atoi(claims.Issuer)
-	getUser, err := u.repo.GetUser(user, claims)
+	updateCompany := &model.Company{
+		ID:          getUser.Company.ID,
+		UserID:      usrID,
+		Photo:       getUser.Company.Photo,
+		Name:        company.Name,
+		Tag:         company.Tag,
+		Email:       company.Email,
+		Phone:       company.Phone,
+		Location:    company.Location,
+		Description: company.Description,
+		CompanySize: company.CompanySize,
+		WebSite:     company.WebSite,
+		Vacancy:     getUser.Company.Vacancy,
+	}
+	updateCompanyData, err := u.repo.UpdateCompanyData(updateCompany, getUser)
 	if err != nil {
 		return nil, err
 	}
-	updateCompany := &model.Company{
-		ID:     getUser.Company.ID,
-		UserID: usrID,
-		Name:   company.Name,
+	return updateCompanyData, nil
+}
+
+//updateCompanyData, err := u.repo.UpdateCompanyData(*updateCompany, getUser)
+//if err != nil {
+//	return nil, err
+//}
+
+func (u *UserServices) GetAllCompanies(company []model.Company) ([]model.Company, error) {
+	getAllCompanies, err := u.repo.GetAllCompanies(company)
+	if err != nil {
+		return nil, err
 	}
-	// updateCompanyData, err := u.repo.UpdateCompanyData(updateCompany, user, claims)
-	// if err != nil {
-	// return nil, err
-	// }
-	return updateCompany, nil
+	return getAllCompanies, nil
 }
 
 func (u *UserServices) UpdateRoleByUserID(userID string, roleID int) error {
@@ -357,12 +376,13 @@ func (u *UserServices) GetCompanyByID(id string) (*model.Company, error) {
 
 func (u *UserServices) CreateVacancy(data model.Vacancy, secretKey string, c *fiber.Ctx) (*model.Vacancy, error) {
 	cookie := c.Cookies("ipw")
-	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secretKey), nil
-	})
+	token, err := utils.ParseToken(cookie, secretKey)
 	if err != nil {
 		c.Status(fiber.StatusUnauthorized)
 		return nil, errors.New("unauthenticated")
+	}
+	if !token.Valid {
+		return nil, errors.New("недействительный JWT токен")
 	}
 	claims, ok := token.Claims.(*jwt.RegisteredClaims)
 	if !ok {

@@ -1,33 +1,76 @@
 package repository
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
+	"github.com/golang-jwt/jwt/v4"
+	"github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
 	"ipw-clean-arch/internal/model"
 	"log"
 	"strconv"
-
-	"github.com/golang-jwt/jwt/v4"
-	"gorm.io/gorm"
+	"time"
 )
 
 type UserPostgres struct {
 	db *gorm.DB
+	rb *redis.Client
 }
 
-func NewUserPostgres(db *gorm.DB) *UserPostgres {
-	return &UserPostgres{db: db}
+func NewUserPostgres(db *gorm.DB, rb *redis.Client) *UserPostgres {
+	return &UserPostgres{db: db, rb: rb}
 }
 
 func (u *UserPostgres) GetUser(data model.User, claims *jwt.RegisteredClaims) (*model.User, error) {
-	if err := u.db.Preload("Resume").Preload("Company").Preload("Response").Preload("Role").Where("id = ?", claims.Issuer).First(&data).Error; err != nil {
+	if err := u.db.Preload("Resume").Preload("Company").Preload("Company.Vacancy").Preload("Response").Preload("Role").Where("id = ?", claims.Issuer).First(&data).Error; err != nil {
 		return nil, err
 	}
 	return &data, nil
 }
 
+func (u *UserPostgres) GetUserByTag(tag string) (*model.User, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+/*
+GetAllUsers Сделать через switch
+
+Исп. errors.Is
+
+Использовать Generics
+*/
 func (u *UserPostgres) GetAllUsers(data []model.User) ([]model.User, error) {
-	if err := u.db.Preload("Resume").Preload("Role").Find(&data).Error; err != nil {
-		return nil, err
+	//if err := u.db.Preload("Resume").Preload("Role").Find(&data).Error; err != nil {
+	//	return nil, err
+	//}
+	//
+	// Сделать через switch
+	// Исп. errors.Is
+	// Использовать Generics
+	ctx := context.Background()
+	cachedUsers, err := u.rb.Get(ctx, "users").Result()
+	if errors.Is(err, redis.Nil) {
+		// Данные отсутствуют в кеше, получение данных из PostgreSQL
+		if err := u.db.Preload("Resume").Preload("Role").Find(&data).Error; err != nil {
+			return nil, err
+		}
+		// Сохранение данных в кеше Redis
+		usersJSON, err := json.Marshal(data)
+		err = u.rb.Set(ctx, "users", usersJSON, time.Minute).Err()
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else if err != nil {
+		log.Fatal(err)
+	} else {
+		// Данные найдены в кеше, использование их
+		log.Println("Cache hit for users")
+		err = json.Unmarshal([]byte(cachedUsers), &data)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return data, nil
 }
@@ -55,11 +98,20 @@ func (u *UserPostgres) UpdateUser(data model.User, claims *jwt.RegisteredClaims)
 	if data.Gender != "" {
 		user.Gender = data.Gender
 	}
-	// Отправляем успешный ответ
+	if data.Stack != "" {
+		user.Stack = data.Stack
+	}
 	if err := u.db.Save(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (u *UserPostgres) CreateResponse(data *model.Response) (*model.Response, error) {
+	if err := u.db.Create(data).Error; err != nil {
+		return nil, err
+	}
+	return data, nil
 }
 
 func (u *UserPostgres) UploadPhoto(claims *jwt.RegisteredClaims, photoData []byte) (*model.User, error) {
@@ -89,14 +141,14 @@ func (u *UserPostgres) UpdateResume(data *model.Resume, id string) (*model.Resum
 		}
 		return nil, err
 	}
-	if data.UserEmail != "" {
-		resume.UserEmail = data.UserEmail
+	if data.Email != "" {
+		resume.Email = data.Email
 	}
-	if data.UserName != "" {
-		resume.UserName = data.UserName
+	if data.Name != "" {
+		resume.Name = data.Name
 	}
-	if data.UserTag != "" {
-		resume.UserTag = data.UserTag
+	if data.Tag != "" {
+		resume.Tag = data.Tag
 	}
 	if data.Direction != "" {
 		resume.Direction = data.Direction
@@ -127,11 +179,21 @@ func (u *UserPostgres) GetResume() {
 	panic("implement me")
 }
 
-func (u *UserPostgres) GetResumeByID(id string) (*model.Resume, error) {
+func (u *UserPostgres) GetResumeByID(id int) (*model.Resume, error) {
 	var resume model.Resume
+	var user model.User
 	if err := u.db.First(&resume, id).Error; err != nil {
 		return nil, err
 	}
+	if err := u.db.First(&user, resume.UserID).Error; err != nil {
+		return nil, err
+	}
+	resume.Name = user.Name
+	resume.Email = user.Email
+	resume.Age = user.Birthday
+	resume.Gender = user.Gender
+	resume.Tag = user.Tag
+	resume.Number = user.Number
 	return &resume, nil
 }
 
@@ -149,13 +211,6 @@ func (u *UserPostgres) DeleteResume(id string) error {
 		return err
 	}
 	return errors.New("delete)")
-}
-
-func (u *UserPostgres) CreateResponse(data *model.Response) (*model.Response, error) {
-	if err := u.db.Create(data).Error; err != nil {
-		return nil, err
-	}
-	return data, nil
 }
 
 func (u *UserPostgres) UpdateRoleByUserID(userID string, roleID int) error {
@@ -185,25 +240,55 @@ func (u *UserPostgres) CreateCompany(company *model.Company, user *model.User, c
 	return company, nil
 }
 
-func (u *UserPostgres) UpdateCompanyData(company *model.Company, user model.User, claims *jwt.RegisteredClaims) (*model.Company, error) {
-	// if err := u.db.Preload("Role").Where("id = ?", claims.Issuer).First(&user).Error; err != nil {
-	// 	return nil, err
-	// }
-	// if err := u.db.Model(&model.Company{}).Where("id = ?", company.ID).First(&company).Error; err != nil {
-	// 	return nil, err
-	// }
-	// // if company.UserID != 0 {
-	// // 	data.UserID = company.UserID
-	// // }
-	// // if company.Name != "" {
-	// // 	data.Name = company.Name
-	// // }
-	// // if err := u.db.Save(&data).Error; err != nil {
-	// // 	return nil, err
-	// // }
-	// return company, nil
-	// TODO
-	panic("implement me")
+func (u *UserPostgres) UpdateCompanyData(company *model.Company, user *model.User) (*model.Company, error) {
+	var updateCompany model.Company
+	if company.ID != 0 {
+		updateCompany.ID = company.ID
+	}
+	if company.UserID != 0 {
+		updateCompany.UserID = company.UserID
+	}
+	if company.Photo != nil {
+		updateCompany.Photo = company.Photo
+	}
+	if company.Name != "" {
+		updateCompany.Name = company.Name
+	}
+	if company.Tag != "" {
+		updateCompany.Tag = company.Tag
+	}
+	if company.Email != "" {
+		updateCompany.Email = company.Email
+	}
+	if company.Phone != "" {
+		updateCompany.Phone = company.Phone
+	}
+	if company.Location != "" {
+		updateCompany.Location = company.Location
+	}
+	if company.Description != "" {
+		updateCompany.Description = company.Description
+	}
+	if company.CompanySize != "" {
+		updateCompany.CompanySize = company.CompanySize
+	}
+	if company.WebSite != "" {
+		updateCompany.WebSite = company.WebSite
+	}
+	if company.Vacancy != nil {
+		updateCompany.Vacancy = company.Vacancy
+	}
+	if err := u.db.Save(&updateCompany).Error; err != nil {
+		return nil, err
+	}
+	return &updateCompany, nil
+}
+
+func (u *UserPostgres) GetAllCompanies(company []model.Company) ([]model.Company, error) {
+	if err := u.db.Find(&company).Error; err != nil {
+		return nil, err
+	}
+	return company, nil
 }
 
 func (u *UserPostgres) GetCompanyByID(id string) (*model.Company, error) {
@@ -219,9 +304,13 @@ func (u *UserPostgres) CreateVacancy(data model.Vacancy, claims *jwt.RegisteredC
 	if err := u.db.Preload("Company").Preload("Role").Where("id = ?", claims.Issuer).First(&user).Error; err != nil {
 		return nil, err
 	}
+	if user.Company.ID == 0 {
+		return nil, errors.New("user does not have a company and cannot create a vacancy")
+	}
 	vacancy := &model.Vacancy{
 		CompanyID:    user.Company.ID,
 		CompanyPhoto: user.Company.Photo,
+		CompanyTag:   user.Company.Tag,
 		CompanyName:  user.Company.Name,
 		Direction:    data.Direction,
 		Level:        data.Level,
@@ -232,7 +321,7 @@ func (u *UserPostgres) CreateVacancy(data model.Vacancy, claims *jwt.RegisteredC
 		Salary:       data.Salary,
 		Experience:   data.Experience,
 	}
-	if err := u.db.Create(vacancy).Error; err != nil {
+	if err := u.db.Debug().Create(vacancy).Error; err != nil {
 		return nil, err
 	}
 	return vacancy, nil

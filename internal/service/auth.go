@@ -3,10 +3,11 @@ package service
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
 	"ipw-clean-arch/internal/model"
 	"ipw-clean-arch/internal/repository"
-	"ipw-clean-arch/pkg/tagGenerator"
+	"ipw-clean-arch/internal/utils/tagGenerator"
 	"strconv"
 	"time"
 )
@@ -67,7 +68,7 @@ func (u *AuthServices) Login(data model.User, secretKey string, c *fiber.Ctx) er
 		HTTPOnly: false,
 		Secure:   true,
 		SameSite: "Lax",
-		Domain:   "itprofessionalswork.ru",
+		Domain:   viper.GetString("DEV_DOMAIN"),
 	}
 	c.Cookie(&cookie)
 	if cookie.Value != "" {
@@ -84,7 +85,7 @@ func (u *AuthServices) Logout(c *fiber.Ctx) error {
 		HTTPOnly: false,
 		Secure:   true,
 		SameSite: "Lax",
-		Domain:   "itprofessionalswork.ru",
+		Domain:   viper.GetString("DEV_DOMAIN"),
 	}
 	c.Cookie(&cookie)
 	c.Set("Authorization", "Bearer "+cookie.Value)

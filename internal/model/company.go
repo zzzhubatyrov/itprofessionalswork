@@ -12,6 +12,6 @@ type Company struct {
 	Description string    `json:"description"`
 	CompanySize string    `json:"companySize"`
 	WebSite     string    `json:"webSite"`
-	Vacancy     []Vacancy `json:"vacancies"`
-	//User        *User     `json:"-" gorm:"foreignKey:UserID"`
+	Vacancy     []Vacancy `json:"vacancies" gorm:"foreignKey:CompanyID"`
+	//Response    []Response `json:"response"`
 }
